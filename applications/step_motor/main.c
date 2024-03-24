@@ -29,9 +29,11 @@ int main(void) {
 
   stepper_enable();
 
-  stepper_set_speed(5000, 5000);
-
-  stepper_steps(1600, -1600);
+  stepper_set_speed(10000, 10000);
+  int movment = 600;
+  
+  stepper_steps(movment, -movment);
+  
 
 
 
@@ -72,9 +74,10 @@ int main(void) {
 
   //   usleep(1 * 1000);
   // }
-
-  while (!stepper_steps_done())
-    ;
+  
+   bool aaah;
+  aaah = stepper_steps_done();
+ 
 
   stepper_destroy();
 
