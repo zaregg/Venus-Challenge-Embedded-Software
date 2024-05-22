@@ -75,9 +75,10 @@ int main(void) {
   //   usleep(1 * 1000);
   // }
   
-   bool aaah;
-  aaah = stepper_steps_done();
- 
+   
+  
+  while (!stepper_steps_done())
+    ; 
 
   stepper_destroy();
 

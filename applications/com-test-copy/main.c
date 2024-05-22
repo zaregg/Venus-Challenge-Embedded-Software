@@ -1,65 +1,41 @@
 #include <json-c/json.h>
-#include <json-c/json_object.h>
 #include <stdio.h>
 
-/*
-http://linuxprograms.wordpress.com/2010/08/19/json_object_new_object/
-
-Input:
-NONE
-
-Output:
-{
-    "Site Name": "Joys of Programming",
-    "Technical blog": true,
-    "Average posts per day": 2.140000,
-    "Number of posts": 10,
-    "Categories": [
-        "c",
-        "c++",
-        "php" 
-    ] 
-}
-*/
-
 int main() {
-	/*Creating a json object*/
-	json_object * jobj = json_object_new_object();
+    /* Create the main JSON object */
+    json_object *jobj = json_object_new_object();
+	int s = 8;
+    /* Create and populate the sensor1 object */
+    json_object *sensor1 = json_object_new_object();
+    json_object_object_add(sensor1, "posx", json_object_new_int(10));
+    json_object_object_add(sensor1, "posy", json_object_new_int(s));
 
-	/*Creating a json string*/
-	json_object *jstring = json_object_new_string("Joys of Programming");
+    /* Create and populate the sensor2 object */
+    json_object *sensor2 = json_object_new_object();
+    json_object_object_add(sensor2, "posx", json_object_new_string("value3"));
+    json_object_object_add(sensor2, "posy", json_object_new_string("value4"));
 
-	/*Creating a json integer*/
-	json_object *jint = json_object_new_int(10);
+    /* Create and populate the robot object */
+    json_object *robot = json_object_new_object();
+    json_object_object_add(robot, "posx", json_object_new_string("value5"));
+    json_object_object_add(robot, "posy", json_object_new_string("value6"));
 
-	/*Creating a json boolean*/
-	json_object *jboolean = json_object_new_boolean(1);
+    /* Create and populate the block object */
+    json_object *block = json_object_new_object();
+    json_object_object_add(block, "isitthere", json_object_new_boolean(1));
+    json_object_object_add(block, "color", json_object_new_string("red"));
 
-	/*Creating a json double*/
-	json_object *jdouble = json_object_new_double(2.14);
+    /* Add the sensor1, sensor2, robot, and block objects to the main object */
+    json_object_object_add(jobj, "D1", sensor1);
+    json_object_object_add(jobj, "sensor2", sensor2);
+    json_object_object_add(jobj, "robot", robot);
+    json_object_object_add(jobj, "block", block);
 
-	/*Creating a json array*/
-	json_object *jarray = json_object_new_array();
+    /* Print the JSON object */
+    printf("%s\n", json_object_to_json_string(jobj));
 
-	/*Creating json strings*/
-	json_object *jstring1 = json_object_new_string("c");
-	json_object *jstring2 = json_object_new_string("c++");
-	json_object *jstring3 = json_object_new_string("php");
+    /* Free the main JSON object (frees all nested objects as well) */
+    json_object_put(jobj);
 
-	/*Adding the above created json strings to the array*/
-	json_object_array_add(jarray,jstring1);
-	json_object_array_add(jarray,jstring2);
-	json_object_array_add(jarray,jstring3);
-
-	/*Form the json object*/
-	/*Each of these is like a key value pair*/
-	json_object_object_add(jobj,"Site Name", jstring);
-	json_object_object_add(jobj,"Technical blog", jboolean);
-	json_object_object_add(jobj,"Average posts per day", jdouble);
-	json_object_object_add(jobj,"Number of posts", jint);
-	json_object_object_add(jobj,"Categories", jarray);
-
-	/*Now printing the json object*/
-	//printf ("The json object created: %s\n",json_object_to_json_string(jobj));
-	printf ("%s\n", json_object_to_json_string(jobj));
+    return 0;
 }
