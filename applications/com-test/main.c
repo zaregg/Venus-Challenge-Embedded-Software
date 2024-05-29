@@ -43,31 +43,28 @@ int main(void) {
     // json_object *root = json_tokener_parse_ex(tok, input, size);
     json_object *jobj = json_object_new_object();
 
-    /* Create and populate the sensor1 object */
-    json_object *sensor1 = json_object_new_object();
-    json_object_object_add(sensor1, "posx", json_object_new_int(10));
-    json_object_object_add(sensor1, "posy", json_object_new_int(8));
+     /* block */
+    json_object_object_add(jobj, "block", json_object_new_boolean(0));
 
-    /* Create and populate the sensor2 object */
-    json_object *sensor2 = json_object_new_object();
-    json_object_object_add(sensor2, "posx", json_object_new_string("value3"));
-    json_object_object_add(sensor2, "posy", json_object_new_string("value4"));
+    /* Color sensor, number between 1 and 5 for the different colors*/
+    json_object_object_add(jobj, "color", json_object_new_int(5)); 
 
-    /* Create and populate the robot object */
+    /* IR sensor left */
+    json_object_object_add(jobj, "ir_left", json_object_new_boolean(0));
+
+    /* IR sensor right */
+    json_object_object_add(jobj, "ir_rigth", json_object_new_boolean(0));
+
+    /* Position of robot */
     json_object *robot = json_object_new_object();
-    json_object_object_add(robot, "posx", json_object_new_string("value5"));
-    json_object_object_add(robot, "posy", json_object_new_string("value6"));
+    json_object_object_add(robot, "posx", json_object_new_int(1));
+    json_object_object_add(robot, "posy", json_object_new_int(1));
 
-    /* Create and populate the block object */
-    json_object *block = json_object_new_object();
-    json_object_object_add(block, "isitthere", json_object_new_boolean(1));
-    json_object_object_add(block, "color", json_object_new_string("red"));
+    /* Sensor for mountains */
+    json_object_object_add(jobj, "mountain", json_object_new_boolean(0));
 
     /* Add the sensor1, sensor2, robot, and block objects to the main object */
-    json_object_object_add(jobj, "D1", sensor1);
-    json_object_object_add(jobj, "sensor2", sensor2);
     json_object_object_add(jobj, "robot", robot);
-    json_object_object_add(jobj, "block", block)
 
     // Convert the JSON object to a string
     const char *json_string = json_object_to_json_string(jobj);
