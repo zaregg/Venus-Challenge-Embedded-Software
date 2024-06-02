@@ -1,6 +1,6 @@
 include ../shared.mk
 
-SOURCES:=$(wildcard *.c)
+C_SOURCES:=$(wildcard *.c)
 # CFLAGS+=-Werror
 CFLAGS += $(shell pkg-config --cflags json-c)
 LDFLAGS += $(shell pkg-config --libs json-c)

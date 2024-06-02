@@ -1,6 +1,6 @@
 include ../shared.mk
 
-C_SOURCES:=$(wildcard *.c)
+CPP_SOURCES:=$(wildcard *.cpp)
 # CFLAGS+=-Werror
 
 include ../end.mk

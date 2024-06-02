@@ -19,6 +19,7 @@ OPT_LEVEL?=0
 
 # include paths
 CFLAGS:= -I. -I${PROJECT_ROOT}/platform/ -I${PROJECT_ROOT}/library/ -I${PROJECT_ROOT}/external/
+CXXFLAGS = -Wall -g -std=c++11 -I. -I${PROJECT_ROOT}/platform/ -I${PROJECT_ROOT}/library/ -I${PROJECT_ROOT}/external/
 
 # for debugging 
 CFLAGS+= -ggdb -g3

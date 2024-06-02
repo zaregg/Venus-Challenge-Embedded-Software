@@ -1,6 +1,6 @@
 include ../shared.mk
 
-SOURCES:=$(wildcard *.c)
+C_SOURCES:=$(wildcard *.c)
 CFLAGS+=-Wall -lpthread
 
 CFLAGS+=$(shell pkg-config --cflags glib-2.0)

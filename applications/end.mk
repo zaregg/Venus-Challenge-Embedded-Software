@@ -3,7 +3,10 @@ SUDO?=sudo
 LIBPYNQ_A:=${PROJECT_ROOT}/build/lib/libpynq.a
 
 # Generate list of objects and dependency files.
-SOURCES_OBJ+=$(SOURCES:.c=.o)
+C_OBJECTS = $(C_SOURCES:.c=.o)
+CPP_OBJECTS = $(CPP_SOURCES:.cpp=.o)
+
+SOURCES_OBJ+=$(C_OBJECTS) $(CPP_OBJECTS)
 D_FILES:=$(SOURCES_OBJ:.o=.d)
 
 BUILD_DIR:=${PROJECT_ROOT}/build
@@ -18,10 +21,16 @@ ${LIBPYNQ_A}:
 %.d: %.c
 	$(DEP_PRINT)
 	$(VERBOSE)${CC} -c -MT"$*.o" -MM -o $@  $^ ${CFLAGS}
+%.d: %.cpp
+	$(DEP_PRINT)
+	$(VERBOSE)${CXX} -c -MT"$*.o" -MM -o $@  $^ ${CXXFLAGS}
 
 %.o: %.c
 	$(OBJ_PRINT)
 	$(VERBOSE)${CC} -c -o $@ $< ${CFLAGS}
+%.o: %.c
+	$(OBJ_PRINT)
+	$(VERBOSE)${CXX} -c -o $@ $< ${CXXFLAGS}
 
 indent: ${SOURCES}
 	clang-format -i $^

@@ -1,6 +1,6 @@
 include ../shared.mk
 
-SOURCES:=$(wildcard *.c)
+C_SOURCES:=$(wildcard *.c)
 CFLAGS+=-I${PROJECT_ROOT}/external/scpi-parser/libscpi/inc/
 
 CFLAGS+=$(shell pkg-config --cflags glib-2.0) -lpthread
