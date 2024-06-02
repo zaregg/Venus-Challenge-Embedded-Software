@@ -6,7 +6,7 @@ extern "C" {
 }
 
 
-Stepper::Stepper() {
+Stepper::Stepper() : xCoordinate(0), yCoordinate(0) {
     switchbox_set_pin(IO_AR0, SWB_UART0_RX);
     switchbox_set_pin(IO_AR1, SWB_UART0_TX);
     gpio_set_direction(IO_AR2, GPIO_DIR_INPUT);

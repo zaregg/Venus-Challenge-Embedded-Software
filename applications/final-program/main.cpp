@@ -7,6 +7,11 @@
 #include "structs.h"
 
 
+/**
+ * Maybe add a robot class to keep track of the robot's state and position
+*/
+
+
 int main(void) {
   pynq_init();
 
