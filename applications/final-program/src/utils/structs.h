@@ -4,9 +4,9 @@
 #include <stdint.h>
 
 typedef struct s_StepperThread {
-    uint8_t angle;
-    uint8_t direction;
-    uint8_t speed;
+    uint16_t angle;
+    uint16_t stepCount;
+    int16_t speed;
 
 } s_StepperThread;
 

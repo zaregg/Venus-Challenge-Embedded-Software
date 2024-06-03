@@ -21,6 +21,10 @@ OPT_LEVEL?=0
 CFLAGS:= -I. -I${PROJECT_ROOT}/platform/ -I${PROJECT_ROOT}/library/ -I${PROJECT_ROOT}/external/
 CXXFLAGS = -Wall -g -std=c++11 -I. -I${PROJECT_ROOT}/platform/ -I${PROJECT_ROOT}/library/ -I${PROJECT_ROOT}/external/
 
+# Add linker flags for C++ programs
+CXXFLAGS+= -pthread
+LDFLAGS += -pthread -lstdc++
+
 # for debugging 
 CFLAGS+= -ggdb -g3
 
@@ -33,5 +37,5 @@ CFLAGS+= -Wall -Wextra
 CFLAGS+= -O$(OPT_LEVEL)
 
 # Linker flags
-LDFLAGS:= -lm -ggdb -g3
+LDFLAGS+= -lm -ggdb -g3
 

@@ -2,6 +2,15 @@
 #define STEPPER_THREAD_H
 
 // Include any necessary libraries here
+
+#include <iostream>
+#include <boost/lockfree/queue.hpp> // Include Boost.Lockfree
+#include <thread>
+#include <cstdlib> // Include for EXIT_FAILURE and EXIT_SUCCESS
+#include <memory> // Include for std::unique_ptr
+
+#include "../utils/structs.h"
+
 extern "C" {
     #include <stdio.h>
     // #include <stdint.h>
@@ -9,12 +18,6 @@ extern "C" {
     #include <platform.h>
     #include <stepper.h>
 }
-
-#include <pthread.h>
-#include <iostream>
-#include <unistd.h>
-#include <string.h>
-#include <cstdint>
 
 // Declare the Stepper class
 class Stepper {
@@ -32,6 +35,6 @@ public:
 };
 
 // Declare any function prototypes here
-void *stepperThread(void *vargp);
+void *stepperThreadFunction(boost::lockfree::queue<s_StepperThread*>& threadQueue);
 
 #endif // STEPPER_THREAD_H
