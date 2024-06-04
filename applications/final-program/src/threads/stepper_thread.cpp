@@ -1,13 +1,12 @@
 #include "stepper_thread.hpp"
 
 
-extern "C" {
-    #include "../utils/structs.h"
-}
-
-
-Stepper::Stepper() 
+Stepper::Stepper(boost::lockfree::queue<s_StepperThread*>& threadQueue)
+    : threadQueue(threadQueue), running(false)
 {
+    // Initialize the stepper motor
+    std::cout << "Initializing stepper motor" << std::endl;
+
     switchbox_set_pin(IO_AR0, SWB_UART0_RX);
     switchbox_set_pin(IO_AR1, SWB_UART0_TX);
     gpio_set_direction(IO_AR2, GPIO_DIR_INPUT);
@@ -18,36 +17,60 @@ Stepper::Stepper()
 }
 
 Stepper::~Stepper() {
+    stop();
     stepper_disable();
+    std::cout << "Stepper motor disabled" << std::endl;
 }
 
-uint16_t Stepper::angleToSteps(uint16_t angle)
-{
-    return -1;
+void Stepper::start() {
+    if (!running)
+    {
+        running = true;
+        stepperThread = std::thread(&Stepper::move, this);
+    }
 }
 
-uint16_t Stepper::distanceToSteps(uint16_t distance)
-{
-    return -1;
+void Stepper::stop() {
+    if (running)
+    {
+        running = false;
+        if (stepperThread.joinable())
+        {
+            stepperThread.join();
+            stepper_disable();
+        }
+    }
 }
 
+void Stepper::join() {
+    if (stepperThread.joinable())
+    {
+        stepperThread.join();
+    }
+}
 
-void *stepperThreadFunction(boost::lockfree::queue<s_StepperThread*>& threadQueue) 
+void Stepper::move()
 {
     printf("Stepper thread started\n");
     s_StepperThread* threadStruct = nullptr;
-    if (threadQueue.pop(threadStruct)) {
-        // Process the received s_StepperThread object
-        std::cout << "Received s_StepperThread object from main thread." << std::endl;
-        // Here you can perform any actions required for stepper motor control
-        // For demonstration purposes, we'll just print the values of the struct fields
-        std::cout << "Step Count: " << threadStruct->stepCount << std::endl;
-        std::cout << "Direction: " << threadStruct->angle << std::endl;
-        std::cout << "Speed: " << threadStruct->speed << std::endl;
-        // Free the memory allocated for the s_StepperThread object
-        delete threadStruct;
-    }
+    while (running) {
+        if (threadQueue.pop(threadStruct)) {
+            // Process the received s_StepperThread object
+            std::cout << "Received s_StepperThread object from main thread." << std::endl;
+            // Here you can perform any actions required for stepper motor control
+            // For demonstration purposes, we'll just print the values of the struct fields
+            std::cout << "Step Count: " << threadStruct->stepCount << std::endl;
+            std::cout << "Direction: " << threadStruct->angle << std::endl;
+            std::cout << "Speed: " << threadStruct->speed << std::endl;
+            // Free the memory allocated for the s_StepperThread object
+            // if (threadStruct != nullptr) {
+            // }
 
-    return NULL;
+            // double free error right now
+            printf("threadStruct: %p\n", threadStruct);
+            delete threadStruct;
+            threadStruct = nullptr;
+        }
+    }
 }
 
