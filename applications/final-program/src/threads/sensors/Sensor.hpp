@@ -8,7 +8,8 @@ template<typename T>
 class Sensor {
 public:
     virtual ~Sensor() {}
-    virtual void start() = 0;
+    virtual void start(boost::lockfree::queue<std::function<void()>*>* managerToSensorQueue,
+                       boost::lockfree::queue<std::function<void()>*>* sensorToManagerQueue) = 0;
     virtual void stop() = 0;
     virtual void readData() = 0;
     void setDataQueue(boost::lockfree::queue<T>& dataQueue);

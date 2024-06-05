@@ -1,11 +1,13 @@
-#include "DistanceSensor.h"
+#include "DistanceSensor.hpp"
 
-void DistanceSensor::start() {
+void DistanceSensor::start(boost::lockfree::queue<std::function<void()> *> *managerToSensorQueue, boost::lockfree::queue<std::function<void()> *> *sensorToManagerQueue)
+{
     running_ = true;
     thread_ = std::thread(&DistanceSensor::readData, this);
 }
 
-void DistanceSensor::stop() {
+void DistanceSensor::stop()
+{
     running_ = false;
     if (thread_.joinable()) {
         thread_.join();
@@ -14,8 +16,9 @@ void DistanceSensor::stop() {
 
 void DistanceSensor::readData() {
     while (running_) {
-        int distance = readDistance(); // Calls private helper function
-        sendData(distance);
+        // int distance = readDistance(); // Calls private helper function
+        // sendData(distance);
+        std::cout << "Reading distance data..." << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(1)); // Simulate reading every second
     }
 }

@@ -1,4 +1,4 @@
-#include "com_manager_thread.hpp"
+#include "ComManagerThread.hpp"
 
 CommunicationManager::CommunicationManager(boost::lockfree::queue<s_StepperThread*>& comToStepperQueue, boost::lockfree::queue<s_StepperThread*>& stepperToComQueue)
     : comToStepperQueue(comToStepperQueue), stepperToComQueue(stepperToComQueue), running(false)

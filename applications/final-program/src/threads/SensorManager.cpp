@@ -1,8 +1,8 @@
-#include "sensor_manager.hpp"
+#include "SensorManager.hpp"
 #include <functional>
 
 SensorManager::SensorManager(boost::lockfree::queue<std::function<void()>*> &comToSensorQueue, boost::lockfree::queue<std::function<void()>*> &sensorToComQueue)
-    : comToSensorQueue(comToSensorQueue), sensorToComQueue(sensorToComQueue)
+    : comToManagerQueue(comToSensorQueue), ManagerToComQueue(sensorToComQueue)
 {
     std::cout << "SensorManager created" << std::endl;
 }
@@ -12,20 +12,41 @@ SensorManager::~SensorManager()
     std::cout << "SensorManager destroyed" << std::endl;
 }
 
-template <typename SensorType>
-void SensorManager::addSensor(SensorType &sensor)
+void SensorManager::start()
 {
-    std::function<void()> *sensorFunction = new std::function<void()>(std::bind(&SensorType::run, &sensor));
-    sensorThreads.push_back(std::thread([sensorFunction, this]() {
-        while (true)
-        {
-            if (sensorFunction != nullptr)
-            {
-                (*sensorFunction)();
-            }
-        }
-    }));
-    sensorThreadsRunning.push_back(true);
+
+}
+
+void SensorManager::stop()
+{
+
+}
+
+template <typename SensorType>
+void SensorManager::addSensor(const SensorType &sensor)
+{
+    // Create the queues for this sensor
+    try {
+        auto managerToSensorQueue = new boost::lockfree::queue<std::function<void()>*>(128);
+        auto sensorToManagerQueue = new boost::lockfree::queue<std::function<void()>*>(128);
+
+        // Add the queues to the lists of queues
+        ManagerToSensorQueues.push_back(managerToSensorQueue);
+        SensorToManagerQueues.push_back(sensorToManagerQueue);
+
+        // Create a new thread and pass the sensor.run function as the thread function
+        // std::thread sensorThread(&SensorType::start, &sensor, managerToSensorQueue, sensorToManagerQueue);
+
+        sensor.run(managerToSensorQueue, sensorToManagerQueue);
+
+        // Add the thread to the list of sensor threads
+        // sensorThreads.push_back(std::move(sensorThread)); maybe add it back later
+
+        // Set the flag to indicate that the sensor thread is running
+        sensorThreadsRunning.push_back(true);
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
 }
 
 void SensorManager::stopSensorThreads()
@@ -49,3 +70,14 @@ void SensorManager::joinThreads()
         }
     }
 }
+
+void SensorManager::amountOfSensors()
+{
+    std::cout << "Amount of sensors: " << sensorThreads.size() << std::endl;
+}
+
+void SensorManager::processSensorData()
+{
+    
+}
+

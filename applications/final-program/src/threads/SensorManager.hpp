@@ -6,6 +6,7 @@
 #include <thread>
 #include <vector>
 #include <boost/lockfree/queue.hpp> // Include Boost.Lockfree
+#include <iostream>
 
 
 class SensorManager {
@@ -13,6 +14,9 @@ public:
     SensorManager(boost::lockfree::queue<std::function<void()>*> &comToSensorQueue, boost::lockfree::queue<std::function<void()>*> &sensorToComQueue);
 
     ~SensorManager();
+
+    void start();
+    void stop();
 
     /**
      * Adds a sensor to the sensor manager.
@@ -27,16 +31,19 @@ public:
     void stopSensorThreads();
     void joinThreads();
 
+    void amountOfSensors();
 
 
 private:
     std::vector<std::thread> sensorThreads;
-    boost::lockfree::queue<std::function<void()>*>& comToSensorTasks;
-    boost::lockfree::queue<std::function<void()>*>& sensorToComTasks;
+    std::vector<boost::lockfree::queue<std::function<void()>*>> ManagerToSensorQueues;
+    std::vector<boost::lockfree::queue<std::function<void()>*>> SensorToManagerQueues;
+    boost::lockfree::queue<std::function<void()>*>& comToManagerQueue;
+    boost::lockfree::queue<std::function<void()>*>& ManagerToComQueue;
     std::vector<bool> sensorThreadsRunning;
     // Private member variables
 
-    void sensorThreadFunction(std::function<void()> *task);
+    void processSensorData();
 
 };
 

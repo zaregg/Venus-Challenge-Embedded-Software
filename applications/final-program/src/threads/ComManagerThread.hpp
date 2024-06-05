@@ -21,13 +21,13 @@ using json = nlohmann::json;
 #include "../utils/structs.hpp"
 
 extern "C" {
-    #include <arm_shared_memory_system.h>
-    // #include <json-c/json.h>
-    // #include <json-c/json_object.h>
-    #include <libpynq.h>
-    #include <platform.h>
-    #include <stdint.h>
-    #include <stepper.h>
+    // #include <arm_shared_memory_system.h>
+    // // #include <json-c/json.h>
+    // // #include <json-c/json_object.h>
+    // #include <libpynq.h>
+    // #include <platform.h>
+    // #include <stdint.h>
+    // #include <stepper.h>
 }
 
 /**

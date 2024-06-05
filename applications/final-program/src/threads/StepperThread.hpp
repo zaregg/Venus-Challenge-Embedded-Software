@@ -13,11 +13,11 @@
 #include "../utils/structs.hpp"
 
 extern "C" {
-    #include <stdio.h>
-    // #include <stdint.h>
-    #include <libpynq.h>
-    #include <platform.h>
-    #include <stepper.h>
+    // #include <stdio.h>
+    // // #include <stdint.h>
+    // #include <libpynq.h>
+    // #include <platform.h>
+    // #include <stepper.h>
 }
 
 /**

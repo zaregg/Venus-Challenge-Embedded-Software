@@ -2,7 +2,7 @@
 #define DISTANCE_SENSOR_HPP
 
 // Include any necessary headers here
-#include "Sensor.h"
+#include "Sensor.hpp"
 #include <iostream>
 #include <chrono>
 #include <thread>
@@ -15,7 +15,8 @@ class DistanceSensor : public Sensor<float> {
         // Destructor
         ~DistanceSensor();
 
-        void start() override;
+        void start(boost::lockfree::queue<std::function<void()>*>* managerToSensorQueue,
+                   boost::lockfree::queue<std::function<void()>*>* sensorToManagerQueue) override;
         void stop() override;
 
     private:

@@ -1,4 +1,4 @@
-#include "stepper_thread.hpp"
+#include "StepperThread.hpp"
 
 
 Stepper::Stepper(boost::lockfree::queue<s_StepperThread*>& threadQueue)
@@ -7,18 +7,18 @@ Stepper::Stepper(boost::lockfree::queue<s_StepperThread*>& threadQueue)
     // Initialize the stepper motor
     std::cout << "Initializing stepper motor" << std::endl;
 
-    switchbox_set_pin(IO_AR0, SWB_UART0_RX);
-    switchbox_set_pin(IO_AR1, SWB_UART0_TX);
-    gpio_set_direction(IO_AR2, GPIO_DIR_INPUT);
-    gpio_set_direction(IO_AR3, GPIO_DIR_INPUT);
+    // switchbox_set_pin(IO_AR0, SWB_UART0_RX);
+    // switchbox_set_pin(IO_AR1, SWB_UART0_TX);
+    // gpio_set_direction(IO_AR2, GPIO_DIR_INPUT);
+    // gpio_set_direction(IO_AR3, GPIO_DIR_INPUT);
 
-    stepper_init();
-    stepper_enable();
+    // stepper_init();
+    // stepper_enable();
 }
 
 Stepper::~Stepper() {
     stop();
-    stepper_disable();
+    // stepper_disable();
     std::cout << "Stepper motor disabled" << std::endl;
 }
 
@@ -37,7 +37,7 @@ void Stepper::stop() {
         if (stepperThread.joinable())
         {
             stepperThread.join();
-            stepper_disable();
+            // stepper_disable();
         }
     }
 }
