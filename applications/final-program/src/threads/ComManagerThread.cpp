@@ -42,28 +42,37 @@ void CommunicationManager::joinThreads()
     }
 }
 
-void CommunicationManager::readFromUART()
-{
-    // Create a new instance of s_StepperThread struct
-    s_StepperThread* stepperThreadStruct = new s_StepperThread;
-
+void CommunicationManager::readFromUART() {
     while (running) {
-        std::string message = jsonTest();
-        std::cout << message << std::endl;
+        try {
+            std::string message = jsonTest();
+            std::cout << message << std::endl;
 
-        json parsedJson = json::parse(message);
-        std::cout << "Deserialized JSON object:\n" << parsedJson.dump(4) << std::endl;
+            json parsedJson = json::parse(message);
+            std::cout << "Deserialized JSON object:\n" << parsedJson.dump(4) << std::endl;
 
-        // Set the values of the s_StepperThread struct with random numbers
-        stepperThreadStruct->stepCount  = parsedJson["stepCount"];
-        stepperThreadStruct->angle      = parsedJson["angle"];
-        stepperThreadStruct->speed      = parsedJson["speed"];
+            // Create a new instance of s_StepperThread struct
+            s_StepperThread* stepperThreadStruct = new s_StepperThread;
 
-        // Push the s_StepperThread struct to the queue
-        comToStepperQueue.push(stepperThreadStruct);
+            // Set the values of the s_StepperThread struct
+            stepperThreadStruct->stepCount  = parsedJson["stepCount"].get<int>();
+            stepperThreadStruct->angle      = parsedJson["angle"].get<double>();
+            stepperThreadStruct->speed      = parsedJson["speed"].get<double>();
 
-        // Sleep for one second
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+            // Push the s_StepperThread struct to the queue
+            if (!comToStepperQueue.push(stepperThreadStruct)) {
+                std::cerr << "Failed to push to queue" << std::endl;
+                delete stepperThreadStruct; // Clean up if push fails
+            }
+
+            // Sleep for one second
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+
+        } catch (const json::exception& e) {
+            std::cerr << "JSON parsing error: " << e.what() << std::endl;
+        } catch (const std::exception& e) {
+            std::cerr << "Error: " << e.what() << std::endl;
+        }
     }
 }
 
