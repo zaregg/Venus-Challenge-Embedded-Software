@@ -7,6 +7,9 @@
 #include <vector>
 #include <boost/lockfree/queue.hpp> // Include Boost.Lockfree
 #include <iostream>
+#include <vector> // Include vector
+#include <mutex>
+#include <condition_variable>
 #include "sensors/Sensor.hpp"
 #include "../utils/structs.hpp"
 
@@ -57,8 +60,12 @@ private:
     std::vector<std::thread> sensorThreads;
     std::vector<bool> sensorThreadsRunning;
 
+    std::mutex vectorMutex; // Mutex to protect the vectors
+    std::condition_variable cv;
+    bool processing = false;
+
     std::thread managerThread;
-    bool running_;
+    std::atomic<bool> running_;
 
     // std::vector<std::function<void()>> sensorFunctions;
     std::vector<SensorBase*> sensors_;

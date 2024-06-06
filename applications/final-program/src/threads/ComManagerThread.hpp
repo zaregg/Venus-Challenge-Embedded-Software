@@ -53,7 +53,7 @@ public:
      * lock-free queue of s_StepperThread pointers. The queue is used to store
      * the threads that need to be processed.
      */
-    CommunicationManager(boost::lockfree::queue<s_StepperThread*>& comToStepperQueue, boost::lockfree::queue<s_StepperThread*>& stepperToComQueue);
+    CommunicationManager(StepperQueue &comToStepperQueue, StepperQueue &stepperToComQueue);
 
     /**
      * @brief Destroys the CommunicationManager object.
@@ -92,7 +92,7 @@ private:
     std::thread writeThread;                            ///< The write thread.
     boost::lockfree::queue<s_StepperThread*>& comToStepperQueue; ///< The lock-free queue for communication thread to stepper thread.
     boost::lockfree::queue<s_StepperThread*>& stepperToComQueue; ///< The lock-free queue for stepper thread to communication thread.
-    bool running;                                       ///< Flag indicating if the communication is running.
+    std::atomic<bool> running_; ///< Flag indicating if the communication is running.
 
     /**
      * @brief Reads data from UART.

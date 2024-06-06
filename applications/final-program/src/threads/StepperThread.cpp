@@ -1,8 +1,8 @@
 #include "StepperThread.hpp"
 
 
-Stepper::Stepper(boost::lockfree::queue<s_StepperThread*>& threadQueue)
-    : threadQueue(threadQueue), running(false)
+Stepper::Stepper(StepperQueue &comToStepperQueue, StepperQueue &stepperToComQueue)
+    : comToStepperQueue(comToStepperQueue), stepperToComQueue(stepperToComQueue), running_(false)
 {
     // Initialize the stepper motor
     std::cout << "Initializing stepper motor" << std::endl;
@@ -23,17 +23,18 @@ Stepper::~Stepper() {
 }
 
 void Stepper::start() {
-    if (!running)
+    if (!running_.load(std::memory_order_relaxed))
     {
-        running = true;
+        running_.store(true, std::memory_order_relaxed);
         stepperThread = std::thread(&Stepper::move, this);
     }
 }
 
 void Stepper::stop() {
-    if (running)
+    std::cout << "Stopping stepper thread" << std::endl;
+    if (running_.load(std::memory_order_relaxed))
     {
-        running = false;
+        running_.store(false, std::memory_order_relaxed);
         if (stepperThread.joinable())
         {
             stepperThread.join();
@@ -52,11 +53,11 @@ void Stepper::join() {
 void Stepper::move() {
     printf("Stepper thread started\n");
     s_StepperThread* threadStruct = nullptr;
-    while (running) {
+    while (running_.load(std::memory_order_relaxed)) {
         try {
-            if (threadQueue.pop(threadStruct)) {
+            if (comToStepperQueue.pop(threadStruct)) {
                 // Process the received s_StepperThread object
-                std::cout << "Received s_StepperThread object from main thread." << std::endl;
+                // std::cout << "Received s_StepperThread object from main thread." << std::endl;
                 // Here you can perform any actions required for stepper motor control
                 // For demonstration purposes, we'll just print the values of the struct fields
                 std::cout << "Step Count: " << threadStruct->stepCount << std::endl;

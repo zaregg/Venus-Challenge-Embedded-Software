@@ -34,7 +34,7 @@ public:
      * 
      * This constructor creates a Stepper object and initializes it with a reference to a thread queue. The thread queue is used to communicate with the stepper motor control thread.
      */
-    Stepper(boost::lockfree::queue<s_StepperThread*>& threadQueue);
+    Stepper(StepperQueue &comToStepperQueue, StepperQueue &stepperToComQueue);
 
     /**
      * @brief Destroys the Stepper object.
@@ -68,8 +68,9 @@ public:
 
 private:
     std::thread stepperThread; /**< The thread responsible for controlling the stepper motor. */
-    boost::lockfree::queue<s_StepperThread*>& threadQueue; /**< A reference to the thread queue. */
-    bool running; /**< A flag indicating whether the stepper motor is running or not. */
+    StepperQueue &comToStepperQueue; /**< A reference to the queue used to send messages to the stepper motor control thread. */
+    StepperQueue &stepperToComQueue; /**< A reference to the queue used to receive messages from the stepper motor control thread. */
+    std::atomic<bool> running_; /**< A flag indicating whether the stepper motor is running or not. */
 
     /**
      * @brief Converts an angle to the corresponding number of steps.

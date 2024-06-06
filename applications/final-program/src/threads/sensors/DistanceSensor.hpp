@@ -21,13 +21,13 @@ class DistanceSensor : public Sensor<float> {
         void stop() override;
 
     private:
-        bool running_ = false;
+        std::atomic<bool> running_;
         std::thread thread_;
 
         QueueType* managerToSensorQueue_;
         QueueType* sensorToManagerQueue_;
 
-        S_DistanceSensorTest testData();
+        S_DistanceSensorTest* testData();
         
 
         void readData();

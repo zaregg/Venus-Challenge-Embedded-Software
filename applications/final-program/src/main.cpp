@@ -11,12 +11,16 @@
 #include "utils/structs.hpp"
 // #include <libpynq.h>
 
-
 /**
  * Maybe add a robot class to keep track of the robot's state and position
 */
 
-using QueueType = boost::lockfree::queue<Robot*>;
+// Define all queues here
+RobotQueue comToSensorQueue(100); // Create a queue to store pointers to s_StepperThread
+RobotQueue sensorToComQueue(100); // Create a queue to store pointers to s_StepperThread
+
+StepperQueue comToStepperQueue(100); // Create a queue to store pointers to s_StepperThread
+StepperQueue stepperToComQueue(100); // Create a queue to store pointers to s_StepperThread
 
 int main(void) {
   // Initialize the Pynq library
@@ -30,38 +34,48 @@ int main(void) {
 
   DistanceSensor distanceSensor;
 
+  sensorManager.addSensor(&distanceSensor);
+
   sensorManager.start();
 
-  sensorManager.addSensor(&distanceSensor);
 
   sensorManager.amountOfSensors();
 
-  std::this_thread::sleep_for(std::chrono::seconds(10));
+  std::this_thread::sleep_for(std::chrono::seconds(1));
 
   sensorManager.stopSensorThreads();
   sensorManager.stop();
 
   sensorManager.join();
 
-  sensorManager.joinSensors();
+  // sensorManager.joinSensors();
 
   std::cout << "Main thread is done" << std::endl;
 
-  // Create a queue to store pointers to s_StepperThread
+  // // Create a queue to store pointers to s_StepperThread
   // boost::lockfree::queue<s_StepperThread*> comThreadQueue(100); // Create a queue to store pointers to s_StepperThread
   // boost::lockfree::queue<s_StepperThread*> stepperThreadQueue(100); // Create a queue to store pointers to s_StepperThread
 
   // Create a thread to handle the stepper motor
-  // Stepper stepperThread(comThreadQueue);
-  // stepperThread.start();
+  Stepper stepperThread(comToStepperQueue, stepperToComQueue);
+  stepperThread.start();
 
   // Create a thread to handle the communication manager
-  // CommunicationManager comManager(comThreadQueue, stepperThreadQueue);
-  // comManager.start();
+  CommunicationManager comManager(comToStepperQueue, stepperToComQueue);
+  comManager.start();
 
   // join the threads
-  // stepperThread.join();
-  // comManager.joinThreads();
+
+  std::this_thread::sleep_for(std::chrono::seconds(2));
+
+  std::cout << "Stopping com and stepper thread!" << std::endl;
+  comManager.stop();
+  stepperThread.stop();
+  stepperThread.join();
+  comManager.joinThreads();
+
+  std::cout << "Ending!!" << std::endl;
+
 
   // std::thread comManagerThread(Com, std::ref(threadQueue));
 

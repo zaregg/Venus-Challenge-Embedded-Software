@@ -1,7 +1,7 @@
 #include "ComManagerThread.hpp"
 
-CommunicationManager::CommunicationManager(boost::lockfree::queue<s_StepperThread*>& comToStepperQueue, boost::lockfree::queue<s_StepperThread*>& stepperToComQueue)
-    : comToStepperQueue(comToStepperQueue), stepperToComQueue(stepperToComQueue), running(false)
+CommunicationManager::CommunicationManager(StepperQueue &comToStepperQueue, StepperQueue &stepperToComQueue)
+    : comToStepperQueue(comToStepperQueue), stepperToComQueue(stepperToComQueue), running_(false)
 {
     // Print that the COM Manager Thread has started
     std::cout << "COM Manager Thread Started" << std::endl;
@@ -15,18 +15,20 @@ CommunicationManager::~CommunicationManager()
 }
 void CommunicationManager::start()
 {
-    if (!running)
+    if (!running_.load(std::memory_order_relaxed))
     {
-        running = true;
+        running_.store(true, std::memory_order_relaxed);
         readThread = std::thread(&CommunicationManager::readFromUART, this);
     }
 }
 
 void CommunicationManager::stop()
 {
-    if (running)
+    std::cout << "Stopping COM Manager Thread" << std::endl;
+    
+    if (running_.load(std::memory_order_relaxed))
     {
-        running = false;
+        running_.store(false, std::memory_order_relaxed);
         if (readThread.joinable())
         {
             readThread.join();
@@ -43,13 +45,13 @@ void CommunicationManager::joinThreads()
 }
 
 void CommunicationManager::readFromUART() {
-    while (running) {
+    while (running_.load(std::memory_order_relaxed)) {
         try {
             std::string message = jsonTest();
             std::cout << message << std::endl;
 
             json parsedJson = json::parse(message);
-            std::cout << "Deserialized JSON object:\n" << parsedJson.dump(4) << std::endl;
+            // std::cout << "Deserialized JSON object:\n" << parsedJson.dump(4) << std::endl;
 
             // Create a new instance of s_StepperThread struct
             s_StepperThread* stepperThreadStruct = new s_StepperThread;
@@ -81,13 +83,13 @@ void CommunicationManager::writeToUART()
     // Create a new instance of s_StepperThread struct
     s_StepperThread* stepperThreadStruct = nullptr;
 
-    while (running) {
+    while (running_) {
         // Pop the s_StepperThread struct from the queue
         if (stepperToComQueue.pop(stepperThreadStruct)) {
             // Print the values of the s_StepperThread struct
-            std::cout << "Step Count: " << stepperThreadStruct->stepCount << std::endl;
-            std::cout << "Angle: " << stepperThreadStruct->angle << std::endl;
-            std::cout << "Speed: " << stepperThreadStruct->speed << std::endl;
+            // std::cout << "Step Count: " << stepperThreadStruct->stepCount << std::endl;
+            // std::cout << "Angle: " << stepperThreadStruct->angle << std::endl;
+            // std::cout << "Speed: " << stepperThreadStruct->speed << std::endl;
 
             delete stepperThreadStruct;
             stepperThreadStruct = nullptr;
