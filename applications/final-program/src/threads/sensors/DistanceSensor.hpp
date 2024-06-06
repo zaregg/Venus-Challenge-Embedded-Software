@@ -17,15 +17,15 @@ class DistanceSensor : public Sensor<float> {
         // Destructor
         ~DistanceSensor() override;
 
-        void start(std::thread& thread, QueueType* managerToSensorQueue, QueueType* sensorToManagerQueue) override;
+        void start(std::thread& thread, RobotQueue* managerToSensorQueue, RobotQueue* sensorToManagerQueue) override;
         void stop() override;
 
     private:
         std::atomic<bool> running_;
         std::thread thread_;
 
-        QueueType* managerToSensorQueue_;
-        QueueType* sensorToManagerQueue_;
+        RobotQueue* managerToSensorQueue_;
+        RobotQueue* sensorToManagerQueue_;
 
         S_DistanceSensorTest* testData();
         

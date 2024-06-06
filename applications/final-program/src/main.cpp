@@ -8,6 +8,7 @@
 #include "threads/ComManagerThread.hpp"
 #include "threads/SensorManager.hpp"
 #include "threads/sensors/DistanceSensor.hpp"
+#include "threads/sensors/ColorSensor.hpp"
 #include "utils/structs.hpp"
 // #include <libpynq.h>
 
@@ -33,13 +34,17 @@ int main(void) {
   SensorManager sensorManager(comToSensorQueue, sensorToComQueue);
 
   DistanceSensor distanceSensor;
+  ColorSensor colorSensor;
 
   sensorManager.addSensor(&distanceSensor);
+  sensorManager.addSensor(&colorSensor);
 
   sensorManager.start();
 
 
   sensorManager.amountOfSensors();
+
+  colorSensor.requestCapture();
 
 
   // sensorManager.joinSensors();

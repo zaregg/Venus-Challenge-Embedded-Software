@@ -19,12 +19,11 @@ public:
 template<typename T>
 class Sensor : public SensorBase {
 public:
-    using QueueType = boost::lockfree::queue<Robot*>;
 
     Sensor() = default;
     virtual ~Sensor() = default;
 
-    virtual void start(std::thread& thread, QueueType* managerToSensorQueue, QueueType* sensorToManagerQueue) = 0;
+    virtual void start(std::thread& thread, RobotQueue* managerToSensorQueue, RobotQueue* sensorToManagerQueue) = 0;
     // virtual void stop() = 0;
     // virtual void readData() = 0;
     void setDataQueue(boost::lockfree::queue<T>& dataQueue);

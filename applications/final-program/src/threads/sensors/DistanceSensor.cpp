@@ -9,7 +9,7 @@ DistanceSensor::~DistanceSensor()
 {
 }
 
-void DistanceSensor::start(std::thread& thread, QueueType* managerToSensorQueue, QueueType* sensorToManagerQueue)
+void DistanceSensor::start(std::thread& thread, RobotQueue* managerToSensorQueue, RobotQueue* sensorToManagerQueue)
 {
     if (!running_.load(std::memory_order_relaxed)) {
         running_.store(true, std::memory_order_relaxed);
