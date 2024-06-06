@@ -6,9 +6,16 @@
 #include <thread>
 #include <functional>
 
+class SensorBase {
+public:
+    virtual ~SensorBase() = default;
+    // virtual void start() = 0;
+    virtual void stop() = 0;
+};
+
 // Abstract base class for sensors
 template<typename T>
-class Sensor {
+class Sensor : public SensorBase {
 public:
     using QueueType = boost::lockfree::queue<std::function<void()>*>;
 
@@ -16,7 +23,7 @@ public:
     virtual ~Sensor() = default;
 
     virtual void start(std::thread& thread, QueueType* managerToSensorQueue, QueueType* sensorToManagerQueue) = 0;
-    virtual void stop() = 0;
+    // virtual void stop() = 0;
     // virtual void readData() = 0;
     void setDataQueue(boost::lockfree::queue<T>& dataQueue);
 

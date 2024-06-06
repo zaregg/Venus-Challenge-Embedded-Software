@@ -7,6 +7,7 @@
 #include <vector>
 #include <boost/lockfree/queue.hpp> // Include Boost.Lockfree
 #include <iostream>
+#include "sensors/Sensor.hpp"
 
 
 class SensorManager {
@@ -29,6 +30,12 @@ public:
     void addSensor(const SensorType& sensor);
 
     void stopSensorThreads();
+
+    template <typename SensorType>
+    void stopSensorThread(const SensorType& sensor) {
+        sensor.stop();
+    }
+
     void joinThreads();
 
     void amountOfSensors();
@@ -46,6 +53,10 @@ private:
 
     std::vector<std::thread> sensorThreads;
     std::vector<bool> sensorThreadsRunning;
+
+    // std::vector<std::function<void()>> sensorFunctions;
+    std::vector<SensorBase*> sensors_;
+
 
     void processSensorData();
 
@@ -69,7 +80,10 @@ void SensorManager::addSensor(const SensorType &sensor) {
 
         sensor->start(thread, mtSensorQueue.get(), stManagerQueue.get());
 
+
         sensorThreads.push_back(std::move(thread));
+
+        sensors_.push_back(sensor);
 
         // If you want to manage threads, uncomment and modify the code below:
         // std::thread sensorThread(&SensorType::run, &sensor, mtSensorQueue.get(), stManagerQueue.get());

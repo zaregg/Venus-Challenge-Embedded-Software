@@ -29,6 +29,7 @@ void SensorManager::stopSensorThreads()
     for (size_t i = 0; i < sensorThreadsRunning.size(); ++i)
     {
         sensorThreadsRunning[i] = false;
+        sensors_[i]->stop();
     }
 }
 
