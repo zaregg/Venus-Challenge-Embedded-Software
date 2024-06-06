@@ -1,7 +1,7 @@
 #include "ComManagerThread.hpp"
 
-CommunicationManager::CommunicationManager(StepperQueue &comToStepperQueue, StepperQueue &stepperToComQueue)
-    : comToStepperQueue(comToStepperQueue), stepperToComQueue(stepperToComQueue), running_(false)
+CommunicationManager::CommunicationManager(StepperQueue &comToStepperQueue, StepperQueue &stepperToComQueue, RobotQueue &comToSensorQueue, RobotQueue &sensorToComQueue)
+    : comToStepperQueue(comToStepperQueue), stepperToComQueue(stepperToComQueue), comToSensorQueue(comToSensorQueue), sensorToComQueue(sensorToComQueue), running_(false)
 {
     // Print that the COM Manager Thread has started
     std::cout << "COM Manager Thread Started" << std::endl;
@@ -19,6 +19,7 @@ void CommunicationManager::start()
     {
         running_.store(true, std::memory_order_relaxed);
         readThread = std::thread(&CommunicationManager::readFromUART, this);
+        writeThread = std::thread(&CommunicationManager::writeToUART, this);
     }
 }
 
@@ -48,7 +49,7 @@ void CommunicationManager::readFromUART() {
     while (running_.load(std::memory_order_relaxed)) {
         try {
             std::string message = jsonTest();
-            std::cout << message << std::endl;
+            // std::cout << message << std::endl;
 
             json parsedJson = json::parse(message);
             // std::cout << "Deserialized JSON object:\n" << parsedJson.dump(4) << std::endl;
@@ -82,8 +83,9 @@ void CommunicationManager::writeToUART()
 {
     // Create a new instance of s_StepperThread struct
     s_StepperThread* stepperThreadStruct = nullptr;
+    CombinedSensorData* combinedData = nullptr;
 
-    while (running_) {
+    while (running_.load(std::memory_order_relaxed)) {
         // Pop the s_StepperThread struct from the queue
         if (stepperToComQueue.pop(stepperThreadStruct)) {
             // Print the values of the s_StepperThread struct
@@ -94,7 +96,32 @@ void CommunicationManager::writeToUART()
             delete stepperThreadStruct;
             stepperThreadStruct = nullptr;
         }
-    }   
+        if (sensorToComQueue.pop(combinedData)) {
+            if (combinedData->distanceSensorData != nullptr) {
+                // Print the values of the distance sensor data
+                std::cout << "Distance 1: " << combinedData->distanceSensorData->distance1 << std::endl;
+                std::cout << "Distance 2: " << combinedData->distanceSensorData->distance2 << std::endl;
+                delete combinedData->distanceSensorData;
+            }
+            else if (combinedData->colorSensorData != nullptr) {
+                // Print the values of the color sensor data
+                std::cout << "Colour: " << combinedData->colorSensorData->colour << std::endl;
+                delete combinedData->colorSensorData;
+            }
+            else if (combinedData->irSensorData != nullptr) {
+                // Print the values of the IR sensor data
+                std::cout << "Detected: " << combinedData->irSensorData->detected << std::endl;
+                delete combinedData->irSensorData;
+            }
+            // Print the values of the s_StepperThread struct
+            // std::cout << "Step Count: " << stepperThreadStruct->stepCount << std::endl;
+            // std::cout << "Angle: " << stepperThreadStruct->angle << std::endl;
+            // std::cout << "Speed: " << stepperThreadStruct->speed << std::endl;
+
+            delete combinedData;
+            combinedData = nullptr;
+        }
+    }
 }
 
 std::string CommunicationManager::jsonTest()

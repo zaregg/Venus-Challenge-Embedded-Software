@@ -36,7 +36,7 @@ S_DistanceSensorTest* DistanceSensor::testData()
 {
     S_DistanceSensorTest* test = new S_DistanceSensorTest();
     test->distance1 = 10;
-    test->time = std::chrono::system_clock::now();
+    test->distance2 = 20;
     
     return test; // Replace with actual data
 }
@@ -46,11 +46,14 @@ void DistanceSensor::readData()
     while (running_.load(std::memory_order_relaxed)){
         // int distance = readDistance(); // Calls private helper function
         // sendData(distance);
-        std::cout << "Reading distance data..." << std::endl;
+        // std::cout << "Reading distance data..." << std::endl;
 
         // Simulate reading data
         S_DistanceSensorTest* data = testData();
-        sensorToManagerQueue_->push(data);
+        if (!sensorToManagerQueue_->push(data)){
+            std::cerr << "Failed to push to queue" << std::endl;
+            delete data; // Clean up if push fails
+        }
 
         std::this_thread::sleep_for(std::chrono::seconds(1)); // Simulate reading every second
     }

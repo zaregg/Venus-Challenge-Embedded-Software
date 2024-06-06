@@ -27,8 +27,8 @@ int main(void) {
   // pynq_init();
 
   // Create a queue to store pointers to s_StepperThread
-  QueueType comToSensorQueue(100); // Create a queue to store pointers to s_StepperThread
-  QueueType sensorToComQueue(100); // Create a queue to store pointers to s_StepperThread
+  // QueueType comToSensorQueue(100); // Create a queue to store pointers to s_StepperThread
+  // QueueType sensorToComQueue(100); // Create a queue to store pointers to s_StepperThread
 
   SensorManager sensorManager(comToSensorQueue, sensorToComQueue);
 
@@ -41,16 +41,8 @@ int main(void) {
 
   sensorManager.amountOfSensors();
 
-  std::this_thread::sleep_for(std::chrono::seconds(1));
-
-  sensorManager.stopSensorThreads();
-  sensorManager.stop();
-
-  sensorManager.join();
 
   // sensorManager.joinSensors();
-
-  std::cout << "Main thread is done" << std::endl;
 
   // // Create a queue to store pointers to s_StepperThread
   // boost::lockfree::queue<s_StepperThread*> comThreadQueue(100); // Create a queue to store pointers to s_StepperThread
@@ -61,12 +53,17 @@ int main(void) {
   stepperThread.start();
 
   // Create a thread to handle the communication manager
-  CommunicationManager comManager(comToStepperQueue, stepperToComQueue);
+  CommunicationManager comManager(comToStepperQueue, stepperToComQueue, comToSensorQueue, sensorToComQueue);
   comManager.start();
 
   // join the threads
 
-  std::this_thread::sleep_for(std::chrono::seconds(2));
+  std::this_thread::sleep_for(std::chrono::seconds(10));
+
+  sensorManager.stopSensorThreads();
+  sensorManager.stop();
+
+  sensorManager.join();
 
   std::cout << "Stopping com and stepper thread!" << std::endl;
   comManager.stop();

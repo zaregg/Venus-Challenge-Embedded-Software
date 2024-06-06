@@ -60,9 +60,9 @@ void Stepper::move() {
                 // std::cout << "Received s_StepperThread object from main thread." << std::endl;
                 // Here you can perform any actions required for stepper motor control
                 // For demonstration purposes, we'll just print the values of the struct fields
-                std::cout << "Step Count: " << threadStruct->stepCount << std::endl;
-                std::cout << "Direction: " << threadStruct->angle << std::endl;
-                std::cout << "Speed: " << threadStruct->speed << std::endl;
+                // std::cout << "Step Count: " << threadStruct->stepCount << std::endl;
+                // std::cout << "Direction: " << threadStruct->angle << std::endl;
+                // std::cout << "Speed: " << threadStruct->speed << std::endl;
 
                 // Free the memory allocated for the s_StepperThread object
                 delete threadStruct;

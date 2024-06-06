@@ -53,7 +53,7 @@ public:
      * lock-free queue of s_StepperThread pointers. The queue is used to store
      * the threads that need to be processed.
      */
-    CommunicationManager(StepperQueue &comToStepperQueue, StepperQueue &stepperToComQueue);
+    CommunicationManager(StepperQueue &comToStepperQueue, StepperQueue &stepperToComQueue, RobotQueue &comToSensorQueue, RobotQueue &sensorToComQueue);
 
     /**
      * @brief Destroys the CommunicationManager object.
@@ -90,8 +90,13 @@ public:
 private:
     std::thread readThread;                             ///< The read thread.
     std::thread writeThread;                            ///< The write thread.
-    boost::lockfree::queue<s_StepperThread*>& comToStepperQueue; ///< The lock-free queue for communication thread to stepper thread.
-    boost::lockfree::queue<s_StepperThread*>& stepperToComQueue; ///< The lock-free queue for stepper thread to communication thread.
+    // boost::lockfree::queue<s_StepperThread*>& comToStepperQueue; ///< The lock-free queue for communication thread to stepper thread.
+    // boost::lockfree::queue<s_StepperThread*>& stepperToComQueue; ///< The lock-free queue for stepper thread to communication thread.
+    StepperQueue& comToStepperQueue;                    ///< The lock-free queue for communication thread to stepper thread.
+    StepperQueue& stepperToComQueue;                    ///< The lock-free queue for stepper thread to communication thread.
+    RobotQueue& comToSensorQueue;                       ///< The lock-free queue for communication thread to sensor thread.
+    RobotQueue& sensorToComQueue;                       ///< The lock-free queue for sensor thread to communication thread.
+
     std::atomic<bool> running_; ///< Flag indicating if the communication is running.
 
     /**

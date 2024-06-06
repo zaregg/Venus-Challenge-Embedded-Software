@@ -81,6 +81,10 @@ void SensorManager::processSensorData()
         processing = true;
 
         // Check if SensorToManagerQueues and sensorThreadsRunning have the same size
+        CombinedSensorData* combinedData = new CombinedSensorData;
+        combinedData->distanceSensorData = nullptr;
+        combinedData->colorSensorData = nullptr;
+        combinedData->irSensorData = nullptr;
 
         if (SensorToManagerQueues.size() != sensorThreadsRunning.size()) {
             std::cerr << "Error: Size mismatch between SensorToManagerQueues and sensorThreadsRunning" << std::endl;
@@ -126,13 +130,17 @@ void SensorManager::processSensorData()
                     std::cout << "Received sensor data from sensor " << i << std::endl;
                     if (s_DistanceSensorTest* s1 = dynamic_cast<s_DistanceSensorTest*>(item))
                     {
-                        std::cout << "Received distance sensor data" << std::endl;
-                        std::cout << "Distance: " << s1->distance1 << std::endl;
-                        std::time_t time = std::chrono::system_clock::to_time_t(s1->time);
-                        std::cout << "Time: " << std::ctime(&time) << std::endl;
+                        combinedData->distanceSensorData = s1;
                     }
-                    else
-                    {
+                    else if (s_ColorSensorTest* s2 = dynamic_cast<s_ColorSensorTest*>(item)) {
+                        // Add the sensor data to the combinedData struct
+                        combinedData->colorSensorData = s2;
+                    }
+                    else if (s_IRSensorTest* s3 = dynamic_cast<s_IRSensorTest*>(item)) {
+                        // Add the sensor data to the combinedData struct
+                        combinedData->irSensorData = s3;
+                    }
+                    else {
                         std::cout << "Received unknown sensor data" << std::endl;
                     }
 
@@ -140,6 +148,13 @@ void SensorManager::processSensorData()
                     item = nullptr;
                 }
             }
+        }
+
+        // Send the combined sensor data to the CommunicationManager
+        if (!ManagerToComQueue.push(combinedData))
+        {
+            std::cerr << "Failed to push to ManagerToComQueue" << std::endl;
+            delete combinedData;
         }
         processing = false;
         cv.notify_all();
