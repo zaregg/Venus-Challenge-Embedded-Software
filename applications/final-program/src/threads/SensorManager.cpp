@@ -144,7 +144,7 @@ void SensorManager::processSensorData()
                         std::cout << "Received unknown sensor data" << std::endl;
                     }
 
-                    delete item;
+                    // delete item;
                     item = nullptr;
                 }
             }

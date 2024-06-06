@@ -102,16 +102,19 @@ void CommunicationManager::writeToUART()
                 std::cout << "Distance 1: " << combinedData->distanceSensorData->distance1 << std::endl;
                 std::cout << "Distance 2: " << combinedData->distanceSensorData->distance2 << std::endl;
                 delete combinedData->distanceSensorData;
+                combinedData->distanceSensorData = nullptr;
             }
             else if (combinedData->colorSensorData != nullptr) {
                 // Print the values of the color sensor data
                 std::cout << "Colour: " << combinedData->colorSensorData->colour << std::endl;
                 delete combinedData->colorSensorData;
+                combinedData->colorSensorData = nullptr;
             }
             else if (combinedData->irSensorData != nullptr) {
                 // Print the values of the IR sensor data
                 std::cout << "Detected: " << combinedData->irSensorData->detected << std::endl;
                 delete combinedData->irSensorData;
+                combinedData->irSensorData = nullptr;
             }
             // Print the values of the s_StepperThread struct
             // std::cout << "Step Count: " << stepperThreadStruct->stepCount << std::endl;
