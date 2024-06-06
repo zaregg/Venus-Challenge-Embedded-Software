@@ -8,16 +8,19 @@
 #include <boost/lockfree/queue.hpp> // Include Boost.Lockfree
 #include <iostream>
 #include "sensors/Sensor.hpp"
+#include "../utils/structs.hpp"
 
+using QueueType = boost::lockfree::queue<Robot*>;
 
 class SensorManager {
 public:
-    SensorManager(boost::lockfree::queue<std::function<void()>*> &comToSensorQueue, boost::lockfree::queue<std::function<void()>*> &sensorToComQueue);
+    SensorManager(QueueType &comToSensorQueue, QueueType &sensorToComQueue);
 
     ~SensorManager();
 
     void start();
     void stop();
+    void join();
 
     /**
      * Adds a sensor to the sensor manager.
@@ -36,13 +39,13 @@ public:
         sensor.stop();
     }
 
-    void joinThreads();
+    void joinSensors();
 
     void amountOfSensors();
 
 
 private:
-    using QueueType = boost::lockfree::queue<std::function<void()>*>;
+    // using QueueType = boost::lockfree::queue<Robot*>;
     using QueueTypePtr = std::unique_ptr<QueueType>;
 
     QueueType& comToManagerQueue;
@@ -53,6 +56,9 @@ private:
 
     std::vector<std::thread> sensorThreads;
     std::vector<bool> sensorThreadsRunning;
+
+    std::thread managerThread;
+    bool running_;
 
     // std::vector<std::function<void()>> sensorFunctions;
     std::vector<SensorBase*> sensors_;

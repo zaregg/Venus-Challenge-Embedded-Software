@@ -16,17 +16,21 @@
  * Maybe add a robot class to keep track of the robot's state and position
 */
 
+using QueueType = boost::lockfree::queue<Robot*>;
+
 int main(void) {
   // Initialize the Pynq library
   // pynq_init();
 
   // Create a queue to store pointers to s_StepperThread
-  boost::lockfree::queue<std::function<void()>*> comToSensorQueue(100); // Create a queue to store pointers to s_StepperThread
-  boost::lockfree::queue<std::function<void()>*> sensorToComQueue(100); // Create a queue to store pointers to s_StepperThread
+  QueueType comToSensorQueue(100); // Create a queue to store pointers to s_StepperThread
+  QueueType sensorToComQueue(100); // Create a queue to store pointers to s_StepperThread
 
   SensorManager sensorManager(comToSensorQueue, sensorToComQueue);
 
   DistanceSensor distanceSensor;
+
+  sensorManager.start();
 
   sensorManager.addSensor(&distanceSensor);
 
@@ -35,8 +39,11 @@ int main(void) {
   std::this_thread::sleep_for(std::chrono::seconds(10));
 
   sensorManager.stopSensorThreads();
+  sensorManager.stop();
 
-  sensorManager.joinThreads();
+  sensorManager.join();
+
+  sensorManager.joinSensors();
 
   std::cout << "Main thread is done" << std::endl;
 

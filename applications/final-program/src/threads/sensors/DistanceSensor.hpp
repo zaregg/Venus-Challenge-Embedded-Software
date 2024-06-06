@@ -6,6 +6,8 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <boost/lockfree/queue.hpp> // Include Boost.Lockfree
+#include "../../utils/structs.hpp"
 
 class DistanceSensor : public Sensor<float> {
     public:
@@ -21,6 +23,12 @@ class DistanceSensor : public Sensor<float> {
     private:
         bool running_ = false;
         std::thread thread_;
+
+        QueueType* managerToSensorQueue_;
+        QueueType* sensorToManagerQueue_;
+
+        S_DistanceSensorTest testData();
+        
 
         void readData();
         // Add any necessary private variables here

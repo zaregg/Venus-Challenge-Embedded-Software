@@ -6,6 +6,8 @@
 #include <thread>
 #include <functional>
 
+#include "../../utils/structs.hpp"
+
 class SensorBase {
 public:
     virtual ~SensorBase() = default;
@@ -17,7 +19,7 @@ public:
 template<typename T>
 class Sensor : public SensorBase {
 public:
-    using QueueType = boost::lockfree::queue<std::function<void()>*>;
+    using QueueType = boost::lockfree::queue<Robot*>;
 
     Sensor() = default;
     virtual ~Sensor() = default;
