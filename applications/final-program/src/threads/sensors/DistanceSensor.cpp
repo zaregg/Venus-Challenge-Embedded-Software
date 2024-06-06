@@ -1,10 +1,21 @@
 #include "DistanceSensor.hpp"
 
-void DistanceSensor::start(boost::lockfree::queue<std::function<void()> *> *managerToSensorQueue, boost::lockfree::queue<std::function<void()> *> *sensorToManagerQueue)
+DistanceSensor::DistanceSensor()
+{
+    std::cout << "DistanceSensor created" << std::endl;
+}
+
+DistanceSensor::~DistanceSensor()
+{
+}
+
+void DistanceSensor::start(std::thread& thread, QueueType* managerToSensorQueue, QueueType* sensorToManagerQueue)
 {
     running_ = true;
     thread_ = std::thread(&DistanceSensor::readData, this);
+    thread = std::move(thread_); // Move the thread to the parameter
 }
+
 
 void DistanceSensor::stop()
 {

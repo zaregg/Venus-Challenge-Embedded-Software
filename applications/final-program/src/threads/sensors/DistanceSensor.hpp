@@ -13,10 +13,9 @@ class DistanceSensor : public Sensor<float> {
         DistanceSensor();
 
         // Destructor
-        ~DistanceSensor();
+        ~DistanceSensor() override;
 
-        void start(boost::lockfree::queue<std::function<void()>*>* managerToSensorQueue,
-                   boost::lockfree::queue<std::function<void()>*>* sensorToManagerQueue) override;
+        void start(std::thread& thread, QueueType* managerToSensorQueue, QueueType* sensorToManagerQueue) override;
         void stop() override;
 
     private:

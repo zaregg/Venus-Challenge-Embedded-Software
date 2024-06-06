@@ -6,7 +6,7 @@
 
 #include "threads/StepperThread.hpp"
 #include "threads/ComManagerThread.hpp"
-#include "SensorManager.hpp"
+#include "threads/SensorManager.hpp"
 #include "threads/sensors/DistanceSensor.hpp"
 #include "utils/structs.hpp"
 // #include <libpynq.h>
@@ -21,8 +21,8 @@ int main(void) {
   // pynq_init();
 
   // Create a queue to store pointers to s_StepperThread
-  boost::lockfree::queue<s_StepperThread*> comToSensorQueue(100); // Create a queue to store pointers to s_StepperThread
-  boost::lockfree::queue<s_StepperThread*> sensorToComQueue(100); // Create a queue to store pointers to s_StepperThread
+  boost::lockfree::queue<std::function<void()>*> comToSensorQueue(100); // Create a queue to store pointers to s_StepperThread
+  boost::lockfree::queue<std::function<void()>*> sensorToComQueue(100); // Create a queue to store pointers to s_StepperThread
 
   SensorManager sensorManager(comToSensorQueue, sensorToComQueue);
 
@@ -32,8 +32,13 @@ int main(void) {
 
   sensorManager.amountOfSensors();
 
+  std::this_thread::sleep_for(std::chrono::seconds(10));
+
+  sensorManager.stopSensorThreads();
+
   sensorManager.joinThreads();
 
+  std::cout << "Main thread is done" << std::endl;
 
   // Create a queue to store pointers to s_StepperThread
   // boost::lockfree::queue<s_StepperThread*> comThreadQueue(100); // Create a queue to store pointers to s_StepperThread
