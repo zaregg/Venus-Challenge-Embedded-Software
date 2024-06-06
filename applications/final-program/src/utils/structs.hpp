@@ -72,6 +72,7 @@ typedef struct s_StepperThread : public Robot {
 
 using RobotQueue = boost::lockfree::queue<Robot*>;
 using StepperQueue = boost::lockfree::queue<s_StepperThread*>;
+using SensorManagerQueue = boost::lockfree::queue<CombinedSensorData*>;
 // TODO add a communication manager queue here
 
 #endif /* STRUCTS_H */

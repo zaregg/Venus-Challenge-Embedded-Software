@@ -16,8 +16,8 @@
 */
 
 // Define all queues here
-RobotQueue comToSensorQueue(100); // Create a queue to store pointers to s_StepperThread
-RobotQueue sensorToComQueue(100); // Create a queue to store pointers to s_StepperThread
+SensorManagerQueue comToSensorQueue(100); // Create a queue to store pointers to s_StepperThread
+SensorManagerQueue sensorToComQueue(100); // Create a queue to store pointers to s_StepperThread
 
 StepperQueue comToStepperQueue(100); // Create a queue to store pointers to s_StepperThread
 StepperQueue stepperToComQueue(100); // Create a queue to store pointers to s_StepperThread

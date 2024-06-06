@@ -1,7 +1,7 @@
 #include "SensorManager.hpp"
 #include <functional>
 
-SensorManager::SensorManager(QueueType &comToSensorQueue, QueueType &sensorToComQueue)
+SensorManager::SensorManager(SensorManagerQueue &comToSensorQueue, SensorManagerQueue &sensorToComQueue)
     : comToManagerQueue(comToSensorQueue), ManagerToComQueue(sensorToComQueue), running_(false)
 {
     std::cout << "SensorManager created" << std::endl;

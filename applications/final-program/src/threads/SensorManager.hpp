@@ -13,11 +13,11 @@
 #include "sensors/Sensor.hpp"
 #include "../utils/structs.hpp"
 
-using QueueType = boost::lockfree::queue<Robot*>;
+// using QueueType = boost::lockfree::queue<Robot*>;
 
 class SensorManager {
 public:
-    SensorManager(QueueType &comToSensorQueue, QueueType &sensorToComQueue);
+    SensorManager(SensorManagerQueue &comToSensorQueue, SensorManagerQueue &sensorToComQueue);
 
     ~SensorManager();
 
@@ -49,10 +49,10 @@ public:
 
 private:
     // using QueueType = boost::lockfree::queue<Robot*>;
-    using QueueTypePtr = std::unique_ptr<QueueType>;
+    using QueueTypePtr = std::unique_ptr<RobotQueue>;
 
-    QueueType& comToManagerQueue;
-    QueueType& ManagerToComQueue;
+    SensorManagerQueue& comToManagerQueue;
+    SensorManagerQueue& ManagerToComQueue;
 
     std::vector<QueueTypePtr> ManagerToSensorQueues;
     std::vector<QueueTypePtr> SensorToManagerQueues;
@@ -78,8 +78,8 @@ private:
 template <typename SensorType>
 void SensorManager::addSensor(const SensorType &sensor) {
     try {
-        auto managerToSensorQueue = std::make_unique<QueueType>(128);
-        auto sensorToManagerQueue = std::make_unique<QueueType>(128);
+        auto managerToSensorQueue = std::make_unique<RobotQueue>(128);
+        auto sensorToManagerQueue = std::make_unique<RobotQueue>(128);
 
         // Add the queues to the lists of queues
         ManagerToSensorQueues.push_back(std::move(managerToSensorQueue));

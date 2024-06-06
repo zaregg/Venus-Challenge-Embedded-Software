@@ -1,6 +1,6 @@
 #include "ComManagerThread.hpp"
 
-CommunicationManager::CommunicationManager(StepperQueue &comToStepperQueue, StepperQueue &stepperToComQueue, RobotQueue &comToSensorQueue, RobotQueue &sensorToComQueue)
+CommunicationManager::CommunicationManager(StepperQueue &comToStepperQueue, StepperQueue &stepperToComQueue, SensorManagerQueue &comToSensorQueue, SensorManagerQueue &sensorToComQueue)
     : comToStepperQueue(comToStepperQueue), stepperToComQueue(stepperToComQueue), comToSensorQueue(comToSensorQueue), sensorToComQueue(sensorToComQueue), running_(false)
 {
     // Print that the COM Manager Thread has started
