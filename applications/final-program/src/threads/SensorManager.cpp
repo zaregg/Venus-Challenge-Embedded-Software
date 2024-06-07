@@ -104,6 +104,9 @@ void SensorManager::processSensorData()
             }
             // Check if sensorThreadsRunning[i] is true
             if (!sensorThreadsRunning[i]) {
+                if (running_.load(std::memory_order_relaxed)) {
+                    break;
+                }
                 std::cerr << "Error: sensorThreadsRunning[" << i << "] is false" << std::endl;
                 continue;
             }
@@ -135,8 +138,6 @@ void SensorManager::processSensorData()
                     else if (s_ColorSensorTest* s2 = dynamic_cast<s_ColorSensorTest*>(item)) {
                         // Add the sensor data to the combinedData struct
                         combinedData->colorSensorData = s2;
-                        std::cout << "Received color sensor data" << std::endl;
-                        std::cout << "Colour: " << s2->colour << std::endl;
                     }
                     else if (s_IRSensorTest* s3 = dynamic_cast<s_IRSensorTest*>(item)) {
                         // Add the sensor data to the combinedData struct

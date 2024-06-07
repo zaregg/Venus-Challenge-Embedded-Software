@@ -34,17 +34,16 @@ int main(void) {
   SensorManager sensorManager(comToSensorQueue, sensorToComQueue);
 
   DistanceSensor distanceSensor;
-  ColorSensor colorSensor;
+  // ColorSensor colorSensor;
 
   sensorManager.addSensor(&distanceSensor);
-  sensorManager.addSensor(&colorSensor);
+  // sensorManager.addSensor(&colorSensor);
 
   sensorManager.start();
 
 
   sensorManager.amountOfSensors();
 
-  colorSensor.requestCapture();
 
 
   // sensorManager.joinSensors();
@@ -61,13 +60,27 @@ int main(void) {
   CommunicationManager comManager(comToStepperQueue, stepperToComQueue, comToSensorQueue, sensorToComQueue);
   comManager.start();
 
+  // colorSensor.requestCapture();
+
+  // std::this_thread::sleep_for(std::chrono::seconds(3));
+
+  // colorSensor.requestCapture();
+
+  // std::this_thread::sleep_for(std::chrono::seconds(3));
+
+  // colorSensor.requestCapture();
+
   // join the threads
+  // colorSensor.requestCapture();
 
   std::this_thread::sleep_for(std::chrono::seconds(10));
 
-  sensorManager.stopSensorThreads();
+
+
+  //FIXME There is still an error when trying to stop the program...
   sensorManager.stop();
 
+  sensorManager.stopSensorThreads();
   sensorManager.join();
 
   std::cout << "Stopping com and stepper thread!" << std::endl;

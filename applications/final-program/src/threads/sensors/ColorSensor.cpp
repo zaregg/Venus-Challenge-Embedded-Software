@@ -7,6 +7,7 @@ ColorSensor::ColorSensor()
 
 ColorSensor::~ColorSensor()
 {
+    std::cout << "Color Sensor destroyed" << std::endl;
 }
 
 void ColorSensor::start(std::thread &thread, RobotQueue *managerToSensorQueue, RobotQueue *sensorToManagerQueue)
@@ -28,6 +29,7 @@ void ColorSensor::stop()
     {
         running_.store(false, std::memory_order_relaxed);
         stop_.store(true, std::memory_order_relaxed);
+        cv_.notify_one();
         if (worker_.joinable())
         {
             worker_.join();
@@ -73,6 +75,35 @@ void ColorSensor::workerThread()
     
 }
 
-void ColorSensor::receive_from_python()
+void ColorSensor::processColorData(const std::string &color_str)
 {
+    std::string color_str_copy = color_str; // Create a non-const copy of color_str
+    size_t pos = 0;
+    std::string token;
+    while ((pos = color_str_copy.find(',')) != std::string::npos) {
+        token = color_str_copy.substr(0, pos);
+        printf("Received color: {}\n", token);
+        color_str_copy.erase(0, pos + 1);
+    }
+    printf("Received color: {}\n", color_str_copy);
+}
+
+void ColorSensor::receiveFromPython()
+{
+    boost::asio::io_context io_context;
+    boost::asio::ip::tcp::acceptor acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), PORT));
+
+    std::cout << "Waiting for connections..." << std::endl;
+
+    boost::asio::ip::tcp::socket socket(io_context);
+    acceptor.accept(socket);
+
+    std::array<char, 1024> buffer;
+    boost::system::error_code error;
+    size_t length = socket.read_some(boost::asio::buffer(buffer), error);
+    if (error) {
+        std::cerr << "Read error: " << error.message() << std::endl;
+        return;
+    }
+    processColorData(std::string(buffer.data(), length));
 }

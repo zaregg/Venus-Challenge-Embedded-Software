@@ -9,6 +9,7 @@
 #include <iostream>
 #include <boost/lockfree/queue.hpp>
 #include "../../utils/structs.hpp"
+#include <boost/asio.hpp>
 
 // #include <stdio.h>
 // #include <stdlib.h>
@@ -52,7 +53,9 @@ private:
     // Private member variables
     // send_capture_signal();
     void workerThread();
-    void receive_from_python();
+
+    void processColorData(const std::string& color_str);
+    void receiveFromPython();
     
     // Private member functions
 };
