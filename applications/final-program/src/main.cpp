@@ -28,16 +28,14 @@ int main(void) {
   // pynq_init();
 
   // Create a queue to store pointers to s_StepperThread
-  // QueueType comToSensorQueue(100); // Create a queue to store pointers to s_StepperThread
-  // QueueType sensorToComQueue(100); // Create a queue to store pointers to s_StepperThread
 
   SensorManager sensorManager(comToSensorQueue, sensorToComQueue);
 
   DistanceSensor distanceSensor;
-  // ColorSensor colorSensor;
+  ColorSensor colorSensor;
 
   sensorManager.addSensor(&distanceSensor);
-  // sensorManager.addSensor(&colorSensor);
+  sensorManager.addSensor(&colorSensor);
 
   sensorManager.start();
 
@@ -79,22 +77,24 @@ int main(void) {
 
   //FIXME There is still an error when trying to stop the program...
   sensorManager.stop();
-
-  sensorManager.stopSensorThreads();
   sensorManager.join();
 
+
   std::cout << "Stopping com and stepper thread!" << std::endl;
-  comManager.stop();
+
   stepperThread.stop();
   stepperThread.join();
-  comManager.joinThreads();
+
+  // comManager.joinThreads();
+  comManager.stop();
+  
 
   std::cout << "Ending!!" << std::endl;
 
 
   // std::thread comManagerThread(Com, std::ref(threadQueue));
 
- 
+  
 
   // Clean up the Pynq library resources
   // pynq_destroy();

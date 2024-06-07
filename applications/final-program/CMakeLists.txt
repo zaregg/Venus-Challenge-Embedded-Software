@@ -9,7 +9,7 @@ set(CMAKE_BUILD_TYPE Debug)
 
 
 # Set compiler flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -g -pthread -Wno-psabi")  # Compiler flags for C++ files
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -g -ggdb3 -pthread -Wno-psabi")  # Compiler flags for C++ files -fsanitize=address -fno-omit-frame-pointer
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall -Wextra -ggdb -O0 -pthread -D_POSIX_C_SOURCE=200809L")  # Compiler flags for C files
 
 # Set source files using file(GLOB ...)

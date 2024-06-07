@@ -88,8 +88,8 @@ public:
     void joinThreads();
 
 private:
-    std::thread readThread;                             ///< The read thread.
-    std::thread writeThread;                            ///< The write thread.
+    std::thread readThread_;                             ///< The read thread.
+    std::thread writeThread_;                            ///< The write thread.
     // boost::lockfree::queue<s_StepperThread*>& comToStepperQueue; ///< The lock-free queue for communication thread to stepper thread.
     // boost::lockfree::queue<s_StepperThread*>& stepperToComQueue; ///< The lock-free queue for stepper thread to communication thread.
     StepperQueue& comToStepperQueue;                    ///< The lock-free queue for communication thread to stepper thread.

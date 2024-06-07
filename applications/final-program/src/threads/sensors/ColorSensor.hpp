@@ -54,8 +54,9 @@ private:
     // send_capture_signal();
     void workerThread();
 
-    void processColorData(const std::string& color_str);
-    void receiveFromPython();
+    void ColorSensor::sendCaptureSignal();
+    std::string processColorData(const std::string& color_str);
+    void receiveFromPython(s_ColorSensorTest* data);
     
     // Private member functions
 };

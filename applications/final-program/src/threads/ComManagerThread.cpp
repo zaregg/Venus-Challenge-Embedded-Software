@@ -11,15 +11,15 @@ CommunicationManager::~CommunicationManager()
 {
     // Print that the COM Manager Thread has stopped
     std::cout << "COM Manager Thread Stopped" << std::endl;
-    stop();
+    // stop();
 }
 void CommunicationManager::start()
 {
     if (!running_.load(std::memory_order_relaxed))
     {
         running_.store(true, std::memory_order_relaxed);
-        readThread = std::thread(&CommunicationManager::readFromUART, this);
-        writeThread = std::thread(&CommunicationManager::writeToUART, this);
+        readThread_ = std::thread(&CommunicationManager::readFromUART, this);
+        writeThread_ = std::thread(&CommunicationManager::writeToUART, this);
     }
 }
 
@@ -30,18 +30,26 @@ void CommunicationManager::stop()
     if (running_.load(std::memory_order_relaxed))
     {
         running_.store(false, std::memory_order_relaxed);
-        if (readThread.joinable())
+        if (readThread_.joinable())
         {
-            readThread.join();
+            readThread_.join();
+        }
+        if (writeThread_.joinable())
+        {
+            writeThread_.join();
         }
     }
 }
 
 void CommunicationManager::joinThreads()
 {
-    if (readThread.joinable())
+    if (readThread_.joinable())
     {
-        readThread.join();
+        readThread_.join();
+    }
+    if (writeThread_.joinable())
+    {
+        writeThread_.join();
     }
 }
 
@@ -81,11 +89,11 @@ void CommunicationManager::readFromUART() {
 
 void CommunicationManager::writeToUART()
 {
-    // Create a new instance of s_StepperThread struct
-    s_StepperThread* stepperThreadStruct = nullptr;
-    CombinedSensorData* combinedData = nullptr;
 
     while (running_.load(std::memory_order_relaxed)) {
+        // Create a new instance of s_StepperThread struct
+        s_StepperThread* stepperThreadStruct = nullptr;
+        CombinedSensorData* combinedData = nullptr;
         // Pop the s_StepperThread struct from the queue
         if (stepperToComQueue.pop(stepperThreadStruct)) {
             // Print the values of the s_StepperThread struct
@@ -123,6 +131,15 @@ void CommunicationManager::writeToUART()
 
             delete combinedData;
             combinedData = nullptr;
+        }
+
+        if (combinedData != nullptr) {
+            delete combinedData;
+            combinedData = nullptr;
+        }
+        if (stepperThreadStruct != nullptr) {
+            delete stepperThreadStruct;
+            stepperThreadStruct = nullptr;
         }
     }
 }

@@ -55,14 +55,15 @@ void ColorSensor::workerThread()
         {
             break;
         }
+        sendCaptureSignal();
 
+        s_ColorSensorTest *data = new s_ColorSensorTest();
+        receiveFromPython(data);
         // Capture image
         // send_capture_signal();
         // receive_from_python();
 
         // Simulate reading data
-        s_ColorSensorTest *data = new s_ColorSensorTest();
-        data->colour = 1;
         
         if (!sensorToManagerQueue_->push(data))
         {
@@ -75,7 +76,7 @@ void ColorSensor::workerThread()
     
 }
 
-void ColorSensor::processColorData(const std::string &color_str)
+std::string ColorSensor::processColorData(const std::string &color_str)
 {
     std::string color_str_copy = color_str; // Create a non-const copy of color_str
     size_t pos = 0;
@@ -86,9 +87,25 @@ void ColorSensor::processColorData(const std::string &color_str)
         color_str_copy.erase(0, pos + 1);
     }
     printf("Received color: {}\n", color_str_copy);
+    return color_str_copy;
 }
 
-void ColorSensor::receiveFromPython()
+
+void ColorSensor::sendCaptureSignal() {
+    boost::asio::io_context io_context;
+    boost::asio::ip::tcp::socket socket(io_context);
+    boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string("127.0.0.1"), PORT);
+
+    try {
+        socket.connect(endpoint);
+        boost::asio::write(socket, boost::asio::buffer(CAPTURE_SIGNAL, strlen(CAPTURE_SIGNAL)));
+    } catch (std::exception& e) {
+        std::cerr << "Connection failed: " << e.what() << std::endl;
+        return;
+    }
+}
+
+void ColorSensor::receiveFromPython(s_ColorSensorTest* data)
 {
     boost::asio::io_context io_context;
     boost::asio::ip::tcp::acceptor acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), PORT));
@@ -105,5 +122,17 @@ void ColorSensor::receiveFromPython()
         std::cerr << "Read error: " << error.message() << std::endl;
         return;
     }
-    processColorData(std::string(buffer.data(), length));
+    std::string color_str = processColorData(std::string(buffer.data(), length));
+    if (data != nullptr) {
+        // 1 = RED 2 = GREEN 3 = BLUE
+        if (std::strcmp(color_str.c_str(), "red") == 0) {
+            data->colour = 1;
+        } else if (std::strcmp(color_str.c_str(), "green") == 0) {
+            data->colour = 2;
+        } else if (std::strcmp(color_str.c_str(), "blue") == 0) {
+            data->colour = 3;
+        } else {
+            data->colour = 0;
+        }
+    }
 }
