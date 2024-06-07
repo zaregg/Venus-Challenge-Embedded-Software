@@ -54,7 +54,7 @@ private:
     // send_capture_signal();
     void workerThread();
 
-    void ColorSensor::sendCaptureSignal();
+    void sendCaptureSignal();
     std::string processColorData(const std::string& color_str);
     void receiveFromPython(s_ColorSensorTest* data);
     

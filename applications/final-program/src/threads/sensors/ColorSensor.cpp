@@ -29,6 +29,7 @@ void ColorSensor::stop()
     {
         running_.store(false, std::memory_order_relaxed);
         stop_.store(true, std::memory_order_relaxed);
+        ready_.store(true, std::memory_order_relaxed);
         cv_.notify_one();
         if (worker_.joinable())
         {
@@ -46,11 +47,10 @@ void ColorSensor::requestCapture()
 
 void ColorSensor::workerThread()
 {
-    while (true)
+    while (running_.load(std::memory_order_relaxed))
     {
         std::unique_lock<std::mutex> lk(cv_m);
         cv_.wait(lk, [this] { return ready_.load(); });
-
         if(stop_.load())
         {
             break;
