@@ -1,0 +1,161 @@
+#include <arm_shared_memory_system.h>
+#include <json-c/json.h>
+#include <json-c/json_object.h>
+#include <libpynq.h>
+#include <platform.h>
+#include <stdint.h>
+#include <stepper.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+#define M_PI 3.14159265358979323846
+
+
+
+
+
+
+struct coordrobot{
+  float x;
+  float y;
+  int angle;
+};
+
+void turn(int degrees){
+    int turn = degrees*108;
+    stepper_steps(turn, -turn);
+    
+    while (!stepper_steps_done())
+    ; 
+  sleep_msec(1);
+}
+
+void forward(int cm){
+   int steps_up = cm*65;
+  stepper_steps(steps_up,steps_up);
+  while (!stepper_steps_done())
+    ; 
+  sleep_msec(1);
+}
+
+
+
+void uart_read_array(const int uart, uint8_t *buf, uint8_t l) {
+  for (uint8_t x = 0; x < l; x++) {
+    buf[x] = uart_recv(uart);
+  }
+}
+
+float degtorad(int degrees){
+    return (degrees*M_PI)/180;
+}
+
+struct coordrobot calculatecoord(struct coordrobot robot, int distance, int angle){
+    angle = angle *15;
+    printf("ANG=%d\n",angle);
+    robot.angle += angle;
+    float rad = degtorad(robot.angle);
+    float cosine = cos(rad);
+    float sinus = sin(rad);
+
+    robot.x += (cosine*distance);
+    robot.y += (sinus*distance);
+    return robot;
+}
+
+int walking(int* sensor){
+  int distance = 0;
+  do{
+    forward(1);
+    //printf("zucht\n");
+    distance++;
+    if(distance  == 10){
+      *sensor = 1;
+
+    }
+  }while(*sensor == 0);
+  return distance;
+}
+
+void setup(){
+  pynq_init();
+  switchbox_set_pin(IO_AR0, SWB_UART0_RX);
+  switchbox_set_pin(IO_AR1, SWB_UART0_TX);
+  gpio_set_direction(IO_AR2, GPIO_DIR_INPUT);
+  gpio_set_direction(IO_AR3, GPIO_DIR_INPUT);
+  printf("AR2: %d\n", gpio_get_level(IO_AR2));
+  printf("AR3: %d\n", gpio_get_level(IO_AR3));
+
+  uart_init(UART0);
+
+  uart_reset_fifos(UART0);
+
+  stepper_init();
+
+  stepper_enable();
+  stepper_set_speed(10000, 10000);
+
+  
+ 
+
+}
+
+int main(void) {
+  setup();
+
+  struct coordrobot robot;
+  robot.x = 0;
+  robot.y = 0;
+  robot.angle =0;
+  
+  int cm = 0;
+  int distance = 0;
+  int niks = 0;
+  int *sensor = &niks;
+
+  int degrees = 2;
+  
+
+
+  srand(time(NULL));
+  
+  turn(degrees);
+  distance = walking(sensor);
+
+  
+  cm = distance;
+  distance = 0;
+
+  
+
+    
+   robot = calculatecoord(robot,cm,degrees);
+   printf("(%f,%f)\n",robot.x,robot.y);
+   /*
+   degrees = 6;
+  turn(degrees);
+  forward(cm);
+  robot = calculatecoord(robot,cm,degrees);
+  printf("(%f,%f)\n",robot.x,robot.y);
+   degrees = 6;
+  turn(degrees);
+  forward(cm);
+  robot = calculatecoord(robot,cm,degrees);
+  printf("(%f,%f)\n",robot.x,robot.y);
+   degrees = 6;
+  turn(degrees);
+  forward(cm);
+  robot = calculatecoord(robot,cm,degrees);
+  printf("(%f,%f)\n",robot.x,robot.y);
+  */
+  
+ 
+
+  while (!stepper_steps_done())
+    ; 
+    
+  stepper_destroy();
+
+  pynq_destroy();
+  return EXIT_SUCCESS;
+}
