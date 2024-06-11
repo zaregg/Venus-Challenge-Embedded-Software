@@ -130,6 +130,8 @@ void SensorManager::processSensorData()
                         continue;
                     }
 
+
+                    // Process the sensor data
                     std::cout << "Received sensor data from sensor " << i << std::endl;
                     if (s_DistanceSensorTest* s1 = dynamic_cast<s_DistanceSensorTest*>(item))
                     {

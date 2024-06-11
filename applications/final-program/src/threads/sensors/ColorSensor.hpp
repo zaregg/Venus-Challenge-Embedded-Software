@@ -2,14 +2,16 @@
 #define COLORSENSOR_HPP
 
 // Include any necessary libraries or headers
-#include "Sensor.hpp"
 #include <atomic>
-#include <condition_variable>
-#include <thread>
-#include <iostream>
 #include <boost/lockfree/queue.hpp>
+#include <condition_variable>
+#include <iostream>
+#include <string>
+#include <thread>
+#include <zmq.hpp>
+
+#include "Sensor.hpp"
 #include "../../utils/structs.hpp"
-#include <boost/asio.hpp>
 
 // #include <stdio.h>
 // #include <stdlib.h>
@@ -46,6 +48,9 @@ private:
     std::condition_variable cv_;
     std::mutex cv_m; 
     std::thread worker_;
+
+    zmq::context_t context_;
+    zmq::socket_t socket_;
 
     RobotQueue* managerToSensorQueue_;
     RobotQueue* sensorToManagerQueue_;

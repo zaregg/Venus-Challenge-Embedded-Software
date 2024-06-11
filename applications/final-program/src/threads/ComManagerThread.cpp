@@ -114,7 +114,7 @@ void CommunicationManager::writeToUART()
             }
             else if (combinedData->colorSensorData != nullptr) {
                 // Print the values of the color sensor data
-                std::cout << "Colour: " << combinedData->colorSensorData->colour << std::endl;
+                std::cout << "IN THE COM THREAD Colour: " << combinedData->colorSensorData->colour << std::endl;
                 delete combinedData->colorSensorData;
                 combinedData->colorSensorData = nullptr;
             }

@@ -58,7 +58,7 @@ int main(void) {
   CommunicationManager comManager(comToStepperQueue, stepperToComQueue, comToSensorQueue, sensorToComQueue);
   comManager.start();
 
-  // colorSensor.requestCapture();
+  colorSensor.requestCapture();
 
   // std::this_thread::sleep_for(std::chrono::seconds(3));
 
@@ -71,7 +71,7 @@ int main(void) {
   // join the threads
   // colorSensor.requestCapture();
 
-  std::this_thread::sleep_for(std::chrono::seconds(10));
+  std::this_thread::sleep_for(std::chrono::seconds(60));
 
 
 

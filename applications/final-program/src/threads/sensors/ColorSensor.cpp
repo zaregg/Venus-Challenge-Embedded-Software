@@ -1,6 +1,6 @@
 #include "ColorSensor.hpp"
 
-ColorSensor::ColorSensor()
+ColorSensor::ColorSensor() : context_(1), socket_(context_, ZMQ_REQ)
 {
     std::cout << "Color Sensor created" << std::endl;
 }
@@ -17,6 +17,14 @@ void ColorSensor::start(std::thread &thread, RobotQueue *managerToSensorQueue, R
         running_.store(true, std::memory_order_relaxed);
         managerToSensorQueue_ = managerToSensorQueue;
         sensorToManagerQueue_ = sensorToManagerQueue;
+
+        socket_.connect("tcp://localhost:5555");
+        const std::string last_endpoint = socket_.get(zmq::sockopt::last_endpoint);
+        std::cout << "Connected to: " << last_endpoint << std::endl;
+
+        socket_.set(zmq::sockopt::rcvtimeo, 20000);
+        int linger = 0;
+        socket_.set(zmq::sockopt::linger, linger);
 
         worker_ = std::thread(&ColorSensor::workerThread, this);
         thread = std::move(worker_); // Move the thread to the parameter
@@ -35,6 +43,8 @@ void ColorSensor::stop()
         {
             worker_.join();
         }
+        socket_.close();
+        context_.close();
     }
 }
 
@@ -56,6 +66,7 @@ void ColorSensor::workerThread()
             break;
         }
         sendCaptureSignal();
+        std::cout << "Waiting for reply" << std::endl;
 
         s_ColorSensorTest *data = new s_ColorSensorTest();
         receiveFromPython(data);
@@ -83,22 +94,24 @@ std::string ColorSensor::processColorData(const std::string &color_str)
     std::string token;
     while ((pos = color_str_copy.find(',')) != std::string::npos) {
         token = color_str_copy.substr(0, pos);
-        printf("Received color: {}\n", token);
+        std::cout << "Received color: " << token << std::endl;
         color_str_copy.erase(0, pos + 1);
     }
-    printf("Received color: {}\n", color_str_copy);
+    std::cout << "Received color: " << color_str_copy << std::endl;
     return color_str_copy;
 }
 
 
 void ColorSensor::sendCaptureSignal() {
-    boost::asio::io_context io_context;
-    boost::asio::ip::tcp::socket socket(io_context);
-    boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string("127.0.0.1"), PORT);
 
     try {
-        socket.connect(endpoint);
-        boost::asio::write(socket, boost::asio::buffer(CAPTURE_SIGNAL, strlen(CAPTURE_SIGNAL)));
+        std::string CAPTURE_SIGNAL_STR = CAPTURE_SIGNAL;
+        zmq::message_t request(CAPTURE_SIGNAL_STR.size());
+        memcpy(request.data(), CAPTURE_SIGNAL_STR.c_str(), CAPTURE_SIGNAL_STR.size());
+        std::cout << "Sending request: " << CAPTURE_SIGNAL_STR << std::endl;
+        socket_.send(request, zmq::send_flags::none);
+        std::cout << "Capture signal sent" << std::endl;
+        
     } catch (std::exception& e) {
         std::cerr << "Connection failed: " << e.what() << std::endl;
         return;
@@ -107,32 +120,51 @@ void ColorSensor::sendCaptureSignal() {
 
 void ColorSensor::receiveFromPython(s_ColorSensorTest* data)
 {
-    boost::asio::io_context io_context;
-    boost::asio::ip::tcp::acceptor acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), PORT));
+    try {
+        zmq::message_t reply;
+        zmq::recv_result_t ret = socket_.recv(reply, zmq::recv_flags::none);
+        if (!ret.has_value()) {
+            std::cout << "Capture failed" << std::endl;
+            socket_.close();
+            context_.close();
+            return; //0;
+        }
+        std::string recv_msg(static_cast<char*>(reply.data()), reply.size());
+        std::cout << "Received reply: " << recv_msg << std::endl;
+        if (recv_msg == "OK") {
+            std::cout << "Capture successful" << std::endl;
+            zmq::recv_result_t ret = socket_.recv(reply, zmq::recv_flags::none);
+            if (!ret.has_value()) {
+            std::cout << "Capture failed" << std::endl;
+            socket_.close();
+            context_.close();
+            return; //0;
+            }
+            std::string colour(static_cast<char*>(reply.data()), reply.size());
+            std::cout << "Received Colour: " << colour << std::endl;
 
-    std::cout << "Waiting for connections..." << std::endl;
-
-    boost::asio::ip::tcp::socket socket(io_context);
-    acceptor.accept(socket);
-
-    std::array<char, 1024> buffer;
-    boost::system::error_code error;
-    size_t length = socket.read_some(boost::asio::buffer(buffer), error);
-    if (error) {
-        std::cerr << "Read error: " << error.message() << std::endl;
+            std::string color_str = processColorData(colour);
+            if (data != nullptr) {
+                // 1 = RED 2 = GREEN 3 = BLUE
+                if (std::strcmp(color_str.c_str(), "Red") == 0) {
+                    data->colour = 1;
+                } else if (std::strcmp(color_str.c_str(), "Green") == 0) {
+                    data->colour = 2;
+                } else if (std::strcmp(color_str.c_str(), "Blue") == 0) {
+                    data->colour = 3;
+                } else {
+                    data->colour = 0;
+                }
+            }
+        } else {
+            std::cout << "Capture failed" << std::endl;
+        }
+    } catch (std::exception& e) {
+        std::cerr << "Exception caught in receiveFromPython: " << e.what() << std::endl;
+        return;
+    } catch (...) {
+        std::cerr << "Unknown exception caught in receiveFromPython" << std::endl;
         return;
     }
-    std::string color_str = processColorData(std::string(buffer.data(), length));
-    if (data != nullptr) {
-        // 1 = RED 2 = GREEN 3 = BLUE
-        if (std::strcmp(color_str.c_str(), "red") == 0) {
-            data->colour = 1;
-        } else if (std::strcmp(color_str.c_str(), "green") == 0) {
-            data->colour = 2;
-        } else if (std::strcmp(color_str.c_str(), "blue") == 0) {
-            data->colour = 3;
-        } else {
-            data->colour = 0;
-        }
-    }
+
 }
