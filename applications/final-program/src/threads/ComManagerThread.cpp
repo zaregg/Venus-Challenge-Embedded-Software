@@ -105,6 +105,10 @@ void CommunicationManager::writeToUART()
             stepperThreadStruct = nullptr;
         }
         if (sensorToComQueue.pop(combinedData)) {
+
+        	if (combinedData->distanceSensorData != nullptr || combinedData->colorSensorData != nullptr || combinedData->irSensorData != nullptr) {
+                std::cout << combinedData->toJson() << std::endl;
+            }
             if (combinedData->distanceSensorData != nullptr) {
                 // Print the values of the distance sensor data
                 std::cout << "Distance 1: " << combinedData->distanceSensorData->distance1 << std::endl;
@@ -136,7 +140,7 @@ void CommunicationManager::writeToUART()
         if (combinedData != nullptr) {
             delete combinedData;
             combinedData = nullptr;
-        }
+        } 
         if (stepperThreadStruct != nullptr) {
             delete stepperThreadStruct;
             stepperThreadStruct = nullptr;

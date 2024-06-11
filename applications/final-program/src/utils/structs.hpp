@@ -56,9 +56,9 @@ struct CombinedSensorData : public RobotSensor {
 
     json toJson() const override {
         return json{
-            {"TOF", distanceSensorData->toJson()["TOF"]},
-            {"CS", colorSensorData->toJson()["CS"]},
-            {"IR", irSensorData->toJson()["IR"]}
+            {"TOF", distanceSensorData ? distanceSensorData->toJson()["TOF"] : json{}},
+            {"CS", colorSensorData ? colorSensorData->toJson()["CS"] : json{}},
+            {"IR", irSensorData ? irSensorData->toJson()["IR"] : json{}}
         };
     }
 };
