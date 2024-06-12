@@ -5,5 +5,9 @@
         "type_traits": "c",
         "xlocnum": "c",
         "xtr1common": "c"
-    }
+    },
+    "remote.extensionKind": {
+        "GitHub.copilot": ["ui"],
+        "GitHub.copilot-chat": ["ui"],
+    },
 }

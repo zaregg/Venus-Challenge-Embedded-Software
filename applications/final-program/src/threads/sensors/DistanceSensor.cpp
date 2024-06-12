@@ -3,10 +3,14 @@
 DistanceSensor::DistanceSensor() : running_(false)
 {
     std::cout << "DistanceSensor created" << std::endl;
+    switchbox_set_pin(IO_AR_SCL, SWB_IIC0_SCL);
+	switchbox_set_pin(IO_AR_SDA, SWB_IIC0_SDA);
+	iic_init(IIC0);
 }
 
 DistanceSensor::~DistanceSensor()
 {
+    iic_destroy(IIC0);
 }
 
 void DistanceSensor::start(std::thread& thread, RobotQueue* managerToSensorQueue, RobotQueue* sensorToManagerQueue)
@@ -112,12 +116,9 @@ S_DistanceSensorTest *DistanceSensor::testData()
 void DistanceSensor::readData()
 {
     uint32_t iDistance;
-    while (running_.load(std::memory_order_relaxed)){
-        // int distance = readDistance(); // Calls private helper function
-        // sendData(distance);
+    auto lastSentTime = std::chrono::steady_clock::now();
 
-        // std::cout << "Reading distance data..." << std::endl;
-
+    while (running_.load(std::memory_order_relaxed)) {
         // Simulate reading data
         S_DistanceSensorTest* data = new S_DistanceSensorTest();
         iDistance = tofReadDistance(&sensorA);
@@ -125,12 +126,24 @@ void DistanceSensor::readData()
         iDistance = tofReadDistance(&sensorB);
         data->distance2 = iDistance;
 
-        if (!sensorToManagerQueue_->push(data)){
-            std::cerr << "Failed to push to queue" << std::endl;
-            delete data; // Clean up if push fails
+        std::cout << "Distance 1: " << data->distance1 << " mm" << std::endl;
+        std::cout << "Distance 2: " << data->distance2 << " mm" << std::endl;
+
+        auto currentTime = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed = currentTime - lastSentTime;
+
+        if (elapsed.count() >= 0.1) { // 0.1 seconds is 100 milliseconds
+            if (!sensorToManagerQueue_->push(data)) {
+                std::cerr << "Failed to push to queue" << std::endl;
+                delete data; // Clean up if push fails
+            } else {
+                lastSentTime = currentTime; // Update last sent time
+            }
+        } else {
+            delete data; // Clean up if not sending
         }
 
-        std::this_thread::sleep_for(std::chrono::seconds(1)); // Simulate reading every second
+        std::this_thread::sleep_for(std::chrono::milliseconds(1)); // Small sleep to avoid busy-waiting
     }
 }
 
