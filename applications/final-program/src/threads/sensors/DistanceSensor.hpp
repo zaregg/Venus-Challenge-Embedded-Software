@@ -9,6 +9,12 @@
 #include <boost/lockfree/queue.hpp> // Include Boost.Lockfree
 #include "../../utils/structs.hpp"
 
+extern "C" {
+    #include <libpynq.h>
+    #include <iic.h>
+    #include <vl53l0x.h>
+}
+
 class DistanceSensor : public Sensor<float> {
     public:
         // Constructor
@@ -26,6 +32,14 @@ class DistanceSensor : public Sensor<float> {
 
         RobotQueue* managerToSensorQueue_;
         RobotQueue* sensorToManagerQueue_;
+
+        vl53x sensorA;
+        vl53x sensorB;
+
+        uint8_t sensorA_address = 0x69;
+        uint8_t sensorB_address = 0x29;
+
+        int setupSensors();
 
         S_DistanceSensorTest* testData();
         
