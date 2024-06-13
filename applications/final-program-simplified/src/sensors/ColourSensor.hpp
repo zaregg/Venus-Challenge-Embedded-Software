@@ -19,7 +19,7 @@
 class ColourSensor {
 public:
     // Constructor(s)
-    ColourSensor(ThreadParams& params);
+    ColourSensor();
     // Destructor
     ~ColourSensor();
     void setup();
@@ -27,7 +27,6 @@ public:
     ColourData requestCapture();
     
 private:
-    ThreadParams& params_;
 
     zmq::context_t context_;
     zmq::socket_t socket_;

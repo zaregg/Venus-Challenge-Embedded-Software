@@ -1,7 +1,7 @@
 #include "ColourSensor.hpp"
 
-ColourSensor::ColourSensor(ThreadParams& params)
-    : params_(params), context_(1), socket_(context_, ZMQ_REQ)
+ColourSensor::ColourSensor()
+    : context_(1), socket_(context_, ZMQ_REQ)
 {
     std::cout << "Color Sensor created" << std::endl;
 }

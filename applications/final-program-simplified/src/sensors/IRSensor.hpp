@@ -1,13 +1,22 @@
 #ifndef IRSENSOR_HPP
 #define IRSENSOR_HPP
 
+#include "RobotParams.hpp"
+
+extern "C" {
+    // #include <libpynq.h>
+
+}
+
 class IRSensor {
 public:
     // Constructor
-    IRSensor() = default;
+    IRSensor();
 
     // Destructor
-    ~IRSensor() = default;
+    ~IRSensor();
+
+    IRData getIRData();
 
     // Function to initialize the sensor
 

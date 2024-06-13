@@ -21,10 +21,10 @@ public:
     // Destructor
     ~DistanceSensor() = default;
 
-    void setup();
+    int setup();
 
     // Function to get the distance measurement
-    double getDistance();
+    DistanceSensor getDistance();
 
 private:
     
