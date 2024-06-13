@@ -7,23 +7,29 @@
 
 int main() {
     // Create shared parameters
-    std::atomic<bool> motor_running(true);
-    std::mutex mtx;
-    std::condition_variable cv;
+    // Motor parameters
+    std::atomic<bool> motorRunning  { false };      // Flag indicating if the motor is running
+    std::atomic<bool> stopSignal    { false };      // Flag indicating if the motor should stop
+    std::mutex mtx;                                 // Mutex for motor synchronization
+    std::condition_variable cv;                     // Condition variable for motor synchronization
 
-    ThreadParams params {  MotorParams { motor_running, mtx, cv } };
+    // Sensor parameters
+    std::atomic<bool> sensorRunning { false };      // Flag indicating if the sensor is running
+
+    ThreadParams params {  MotorParams { motorRunning, stopSignal, mtx, cv }, SensorParams { sensorRunning } };
 
     // Create sensor and motor objects with shared parameters
     Sensor sensor(params);
     Motor motor(params);
 
     // Start threads
-    sensor.start();
     motor.start();
+    sensor.start();
+
 
     // Wait for threads to finish
-    sensor.join();
     motor.join();
+    sensor.join();
 
     std::cout << "Threads finished execution." << std::endl;
     return 0;

@@ -25,6 +25,7 @@ struct IRData {
 
 struct MotorParams {
     std::atomic<bool>& motorRunning;       // Flag indicating if the motor is running
+    std::atomic<bool>& stopSignal;          // Flag indicating if the motor should stop
     std::mutex& mtx;                        // Mutex for motor synchronization
     std::condition_variable& cv;            // Condition variable for motor synchronization
 };
@@ -41,8 +42,14 @@ struct SensorData {
     IRData irData;                          // Infrared sensor data
 };
 
+struct SensorParams {
+    std::atomic<bool>& sensorRunning;       // Flag indicating if the sensor is running
+    // TODO Maybe more in the future
+};
+
 struct ThreadParams {
     MotorParams motorParams;                // Motor parameters
+    SensorParams sensorParams;              // Sensor parameters
     
     // Add your shared variables here
     // TODO Maybe the comToMotorQueue and motorToComQueue should have different structs

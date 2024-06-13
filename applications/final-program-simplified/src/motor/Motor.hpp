@@ -1,6 +1,7 @@
 #ifndef MOTOR_HPP
 #define MOTOR_HPP
 
+#include <iostream>
 #include <thread>
 #include "RobotParams.hpp"
 #include "MotorController.hpp"
@@ -27,6 +28,7 @@ private:
 
     ThreadParams& params_;
     MotorController motorController_;
+    std::thread motorThread_;
     // Add your member variables here
 };
 

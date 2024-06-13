@@ -3,3 +3,7 @@
 MotorController::MotorController(MotorParams &params)
 {
 }
+
+MotorController::~MotorController()
+{
+}
