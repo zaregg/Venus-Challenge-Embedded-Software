@@ -2,9 +2,10 @@
 #define IRSENSOR_HPP
 
 #include "RobotParams.hpp"
+#include <iostream>
 
 extern "C" {
-    // #include <libpynq.h>
+    #include <libpynq.h>
 
 }
 

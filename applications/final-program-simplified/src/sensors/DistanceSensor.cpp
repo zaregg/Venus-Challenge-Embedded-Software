@@ -1,101 +1,111 @@
-// #include "DistanceSensor.hpp"
+#include "DistanceSensor.hpp"
 
-// DistanceSensor::DistanceSensor()
-// {
-//     std::cout << "DistanceSensor created" << std::endl;
-//     // switchbox_set_pin(IO_AR_SCL, SWB_IIC0_SCL);
-//     // switchbox_set_pin(IO_AR_SDA, SWB_IIC0_SDA);
-//     // iic_init(IIC0);
-// }
+DistanceSensor::DistanceSensor()
+{
+    std::cout << "DistanceSensor created" << std::endl;
+    switchbox_set_pin(IO_AR_SCL, SWB_IIC0_SCL);
+    switchbox_set_pin(IO_AR_SDA, SWB_IIC0_SDA);
+    iic_init(IIC0);
+}
 
-// DistanceSensor::~DistanceSensor()
-// {
-//     // iic_destroy(IIC0);
-// }
+DistanceSensor::~DistanceSensor()
+{
+    iic_destroy(IIC0);
+}
 
-// int DistanceSensor::setup()
-// {
-//     int i;
-//     std::cout << "Setting up sensors..." << std::endl;
+int DistanceSensor::setup()
+{
+    int i;
+    std::cout << "Scanning I2C bus..." << std::endl;
+    std::vector<uint8_t> address_list;
+    for (uint8_t address = 1; address <= 127; ++address) {
+        i = tofPing(IIC0, address);
+        if (i == 0) {
+            if (address == sensorA_address || address == sensorB_address) {
+                std::cout << "Sensor found at address 0x" << std::hex << static_cast<int>(address) << std::dec << std::endl;
+                address_list.push_back(address);
+            }
+        }
+    }
+    if (address_list.size() >= 2) {
+        std::cout << "Both Sensor A and Sensor B found" << std::endl;
+        // return 0;
+    }else{
 
-//     std::cout << "Initializing sensor A..." << std::endl;
-//     i = tofSetAddress(IIC0,0x29, sensorA_address);
-//     if (i != 0) {
-//         std::cerr << "Failed to set sensor A address" << std::endl;
-//         return -1;
-//     }
-//     i = tofPing(IIC0, sensorA_address);
-//     if (i != 0) {
-//         std::cerr << "Failed to ping sensor A" << std::endl;
-//         return -1;
-//     }
-//     i = tofInit(&sensorA, IIC0, sensorA_address, 0);
-//     if (i != 0)
-//     {
-//         std::cerr << "Failed to initialize sensor A" << std::endl;
-//         return -1;
-//     }
+        // int i;
+        std::cout << "Setting up sensors..." << std::endl;
 
-//     uint8_t model, revision;
+        std::cout << "Initializing sensor A..." << std::endl;
+        i = tofSetAddress(IIC0,0x29, sensorA_address);
+        if (i != 0) {
+            std::cerr << "Failed to set sensor A address" << std::endl;
+            return -1;
+        }
+        i = tofPing(IIC0, sensorA_address);
+        if (i != 0) {
+            std::cerr << "Failed to ping sensor A" << std::endl;
+            return -1;
+        }
+    }
 
-//     tofGetModel(&sensorA, &model, &revision);
-//     std::cout << "---Model ID - " << static_cast<int>(model) << std::endl;
-//     std::cout << "---Revision ID - " << static_cast<int>(revision) << std::endl;
-//     std::cout << "---Init: Success" << std::endl;
-//     std::cout.flush();
+    i = tofInit(&sensorA, IIC0, sensorA_address, 0);
+    if (i != 0)
+    {
+        std::cerr << "Failed to initialize sensor A" << std::endl;
+        return -1;
+    }
 
-//     std::cout << std::endl << std::endl << "Now Power Sensor B!" << std::endl << std::endl;
-//     std::cout << "Press Enter to continue..." << std::endl;
-//     std::cin.get();
+    uint8_t model, revision;
 
-//     std::cout << "Initializing sensor B..." << std::endl;
-//     // i = tofSetAddress(IIC0,0x29, sensorB_address);
-//     // if (i != 0) {
-//     //     std::cerr << "Failed to set sensor B address" << std::endl;
-//     //     return -1;
-//     // }
-//     i = tofPing(IIC0, sensorB_address);
-//     if (i != 0) {
-//         std::cerr << "Failed to ping sensor B" << std::endl;
-//         return -1;
-//     }
-//     i = tofInit(&sensorB, IIC0, sensorB_address, 0);
-//     if (i != 0)
-//     {
-//         std::cerr << "Failed to initialize sensor B" << std::endl;
-//         return -1;
-//     }
+    tofGetModel(&sensorA, &model, &revision);
+    std::cout << "---Model ID - " << static_cast<int>(model) << std::endl;
+    std::cout << "---Revision ID - " << static_cast<int>(revision) << std::endl;
+    std::cout << "---Init: Success" << std::endl;
+    std::cout.flush();
 
-//     tofGetModel(&sensorB, &model, &revision);
-//     std::cout << "---Model ID - " << static_cast<int>(model) << std::endl;
-//     std::cout << "---Revision ID - " << static_cast<int>(revision) << std::endl;
-//     std::cout << "---Init: Success" << std::endl;
-//     std::cout.flush();
+    std::cout << std::endl << std::endl << "Now Power Sensor B!" << std::endl << std::endl;
+    std::cout << "Press Enter to continue..." << std::endl;
+    std::cin.get();
 
-//     return 0;
-// }
+    std::cout << "Initializing sensor B..." << std::endl;
+    
+    // i = tofSetAddress(IIC0,0x29, sensorB_address);
+    // if (i != 0) {
+    //     std::cerr << "Failed to set sensor B address" << std::endl;
+    //     return -1;
+    // }
+
+    i = tofPing(IIC0, sensorB_address);
+    if (i != 0) {
+        std::cerr << "Failed to ping sensor B" << std::endl;
+        return -1;
+    }
+    i = tofInit(&sensorB, IIC0, sensorB_address, 0);
+    if (i != 0)
+    {
+        std::cerr << "Failed to initialize sensor B" << std::endl;
+        return -1;
+    }
+
+    tofGetModel(&sensorB, &model, &revision);
+    std::cout << "---Model ID - " << static_cast<int>(model) << std::endl;
+    std::cout << "---Revision ID - " << static_cast<int>(revision) << std::endl;
+    std::cout << "---Init: Success" << std::endl;
+    std::cout.flush();
+
+    return 0;
+}
 
 
-// DistanceSensor DistanceSensor::getDistance()
-// {
-//     DistanceSensor distanceSensor;
-//     int i;
-//     uint16_t distanceA, distanceB;
-//     i = tofReadDistance(&sensorA, &distanceA);
-//     if (i != 0)
-//     {
-//         std::cerr << "Failed to read distance from sensor A" << std::endl;
-//         return distanceSensor;
-//     }
-//     i = tofReadDistance(&sensorB, &distanceB);
-//     if (i != 0)
-//     {
-//         std::cerr << "Failed to read distance from sensor B" << std::endl;
-//         return distanceSensor;
-//     }
+TOFData DistanceSensor::getDistance()
+{
+    TOFData tofData = {0,0};
+    uint16_t distanceA, distanceB;
+    distanceA = tofReadDistance(&sensorA);
+    distanceB = tofReadDistance(&sensorB);
 
-//     distanceSensor.sensorA = distanceA;
-//     distanceSensor.sensorB = distanceB;
+    tofData.distance1 = distanceA;
+    tofData.distance2 = distanceB;
 
-//     return distanceSensor;
-// }
+    return tofData;
+}

@@ -6,6 +6,7 @@
 #include "utils/RobotParams.hpp"
 
 int main() {
+    pynq_init();
     // Create shared parameters
     // Motor parameters
     std::atomic<bool> motorRunning  { false };      // Flag indicating if the motor is running
@@ -32,5 +33,6 @@ int main() {
     sensor.join();
 
     std::cout << "Threads finished execution." << std::endl;
-    return 0;
+    pynq_destroy();
+    return EXIT_SUCCESS;
 }

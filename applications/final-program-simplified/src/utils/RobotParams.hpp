@@ -5,6 +5,9 @@
 #include <mutex>
 #include <condition_variable>
 #include <boost/lockfree/queue.hpp>
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 // Define the maximum size of the lock-free queues
 #define QUEUE_CAPACITY 100
@@ -12,15 +15,28 @@
 struct TOFData {
     uint16_t distance1;                      // Distance measurement 1
     uint16_t distance2;                      // Distance measurement 2
+
+    json toJson() const  {
+        return json{{"TOF", {{"d1", distance1}, {"d2", distance2}}}};
+    }
 };
 
 struct ColourData {
     uint8_t colour;                          // Colour value
+
+    json toJson() const {
+        return json{{"CS", {{"c", colour}}}};
+    }
 };
 
 struct IRData {
-    uint8_t ir1;                             // Infrared value 1
-    uint8_t ir2;                             // Infrared value 2
+    // IDK why but it cannot be uint8_t, it will not print to stdout   
+    int ir1;                             // Infrared value 1
+    int ir2;                             // Infrared value 2
+
+    json toJson() const {
+        return json{{"IR", {{"ir1", ir1}, {"ir2", ir2}}}};
+    }
 };
 
 struct MotorParams {
@@ -40,6 +56,17 @@ struct SensorData {
     TOFData distanceData;                   // Time-of-Flight sensor data
     ColourData colourData;                  // Colour sensor data
     IRData irData;                          // Infrared sensor data
+
+    json toJson() const {
+        return json{
+            // {"TOF", distanceData ? distanceData.toJson()["TOF"] : json{}},
+            // {"CS", colourData ? colourData.toJson()["CS"] : json{}},
+            // {"IR", irData ? irData.toJson()["IR"] : json{}}
+            {"TOF", distanceData.toJson()["TOF"] },
+            {"CS", colourData.toJson()["CS"] },
+            {"IR", irData.toJson()["IR"] }
+        };
+    }
 };
 
 struct SensorParams {
@@ -47,9 +74,16 @@ struct SensorParams {
     // TODO Maybe more in the future
 };
 
+struct ComParams {
+    // std::atomic<bool>& comRunning;          // Flag indicating if the communication is running
+    // std::mutex& mtx;                        // Mutex for communication synchronization
+    // std::condition_variable& cv;            // Condition variable for communication synchronization
+};
+
 struct ThreadParams {
     MotorParams motorParams;                // Motor parameters
     SensorParams sensorParams;              // Sensor parameters
+    ComParams comParams;                    // Communication parameters
     
     // Add your shared variables here
     // TODO Maybe the comToMotorQueue and motorToComQueue should have different structs

@@ -7,30 +7,30 @@
 #include <boost/lockfree/queue.hpp> // Include Boost.Lockfree
 #include "RobotParams.hpp"
 
-// extern "C" {
-//     #include <libpynq.h>
-//     #include <iic.h>
-//     #include <vl53l0x.h>
-// }
+extern "C" {
+    #include <libpynq.h>
+    #include <iic.h>
+    #include <vl53l0x.h>
+}
 
 class DistanceSensor {
 public:
     // Constructor
-    DistanceSensor() = default;
+    DistanceSensor();
 
     // Destructor
-    ~DistanceSensor() = default;
+    ~DistanceSensor();
 
     int setup();
 
     // Function to get the distance measurement
-    DistanceSensor getDistance();
+    TOFData getDistance();
 
 private:
     
 
-    // vl53x sensorA;
-    // vl53x sensorB;
+    vl53x sensorA;
+    vl53x sensorB;
 
     uint8_t sensorA_address = 0x69;
     uint8_t sensorB_address = 0x29;
