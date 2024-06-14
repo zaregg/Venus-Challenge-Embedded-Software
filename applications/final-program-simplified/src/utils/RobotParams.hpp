@@ -40,6 +40,7 @@ struct IRData {
 };
 
 struct MotorParams {
+    std::atomic<bool>& motorEnabled;        // Flag indicating if the motor is enabled
     std::atomic<bool>& motorRunning;       // Flag indicating if the motor is running
     std::atomic<bool>& stopSignal;          // Flag indicating if the motor should stop
     std::mutex& mtx;                        // Mutex for motor synchronization
@@ -47,7 +48,7 @@ struct MotorParams {
 };
 
 struct MotorData {
-    int speed;                              // Motor speed
+    int speed = 10000;                      // Motor speed
     int angle;                              // Motor angle
     int distance;                           // Motor distance
 };
@@ -75,7 +76,7 @@ struct SensorParams {
 };
 
 struct ComParams {
-    // std::atomic<bool>& comRunning;          // Flag indicating if the communication is running
+    std::atomic<bool>& comRunning;          // Flag indicating if the communication is running
     // std::mutex& mtx;                        // Mutex for communication synchronization
     // std::condition_variable& cv;            // Condition variable for communication synchronization
 };

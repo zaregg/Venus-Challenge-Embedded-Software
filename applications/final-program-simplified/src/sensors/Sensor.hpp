@@ -18,6 +18,8 @@ public:
     void stop();
     void join();
 
+    bool areSensorsEnabled();
+
     // Add your member functions here
 
 private:

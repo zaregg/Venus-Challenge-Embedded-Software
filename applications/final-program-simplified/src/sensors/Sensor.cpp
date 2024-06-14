@@ -12,15 +12,18 @@ Sensor::~Sensor() {
 void Sensor::start() {
     // Start sensor thread
     if (!params_.sensorParams.sensorRunning.load(std::memory_order_acquire)) {
-        params_.sensorParams.sensorRunning.store(true, std::memory_order_release);
 
         // Setup Sensors
         int i = distanceSensor_.setup();
         while (i != 0){
             i = distanceSensor_.setup();
+            std::cout << std::endl << std::endl << "Failed!" << std::endl << std::endl;
+            std::cout << "Press Enter to continue..." << std::endl;
+            std::cin.get();
         }
         colourSensor_.setup();
 
+        params_.sensorParams.sensorRunning.store(true, std::memory_order_release);
         sensorThread_ = std::thread(&Sensor::sensorThread, this);
     }
 }
@@ -38,6 +41,11 @@ void Sensor::join() {
     if (sensorThread_.joinable()) {
         sensorThread_.join();
     }
+}
+
+bool Sensor::areSensorsEnabled()
+{
+    return params_.sensorParams.sensorRunning.load(std::memory_order_acquire);
 }
 
 void Sensor::sensorThread()
@@ -64,7 +72,13 @@ void Sensor::sensorThread()
         std::cout << "IR1: " << sensorData.irData.ir1 << std::endl;
         std::cout << "IR2: " << sensorData.irData.ir2 << std::endl;
 
-        if ((sensorData.distanceData.distance1 < 30 || sensorData.distanceData.distance2 < 30) && !params_.motorParams.stopSignal.load(std::memory_order_acquire)) {
+        if (sensorData.irData.ir1 || sensorData.irData.ir2) {
+            params_.motorParams.stopSignal.store(true, std::memory_order_release);
+            // sensorData.colourData = colourSensor_.requestCapture();
+            // std::cout << "Colour: " << sensorData.colourData.colour << std::endl;
+        }
+
+        if ((sensorData.distanceData.distance1 < 50 || sensorData.distanceData.distance2 < 50) && !params_.motorParams.stopSignal.load(std::memory_order_acquire)) {
             params_.motorParams.stopSignal.store(true, std::memory_order_release);
             sensorData.colourData = colourSensor_.requestCapture();
             std::cout << "Colour: " << sensorData.colourData.colour << std::endl;
@@ -74,6 +88,8 @@ void Sensor::sensorThread()
         //     params_.motorParams.cv.notify_one();
         // }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        params_.sensorQueue.push(sensorData);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 }

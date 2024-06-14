@@ -30,7 +30,7 @@ int DistanceSensor::setup()
     if (address_list.size() >= 2) {
         std::cout << "Both Sensor A and Sensor B found" << std::endl;
         // return 0;
-    }else{
+    }else if (address_list.size() == 1 && address_list[0] == sensorB_address) {
 
         // int i;
         std::cout << "Setting up sensors..." << std::endl;
@@ -46,6 +46,13 @@ int DistanceSensor::setup()
             std::cerr << "Failed to ping sensor A" << std::endl;
             return -1;
         }
+        std::cout << std::endl << std::endl << "Now Power Sensor B!" << std::endl << std::endl;
+        std::cout << "Press Enter to continue..." << std::endl;
+        std::cin.get();
+    } else if (address_list.size() == 1 && address_list[0] == sensorA_address) {
+        std::cout << std::endl << std::endl << "Now Power Sensor B!" << std::endl << std::endl;
+        std::cout << "Press Enter to continue..." << std::endl;
+        std::cin.get();
     }
 
     i = tofInit(&sensorA, IIC0, sensorA_address, 0);
