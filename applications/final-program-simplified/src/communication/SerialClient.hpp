@@ -2,6 +2,7 @@
 #define SERIALCLIENT_HPP
 
 #include "RobotParams.hpp"
+// #include "DetectedObject.hpp"
 #include "json.hpp"
 
 #include <thread>

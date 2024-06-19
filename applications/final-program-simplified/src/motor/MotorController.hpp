@@ -4,6 +4,7 @@
 #include "RobotParams.hpp"
 #include <iostream>
 #include <cmath>
+#include <thread>
 
 extern "C" {
     #include <libpynq.h>
@@ -12,7 +13,7 @@ extern "C" {
 }
 
 #define STEPS_PER_CM 65
-#define STEPS_PER_DEGREE 7.2
+#define STEPS_PER_DEGREE 7
 
 // Motor controller class for controlling the stepper motor
 class MotorController {
@@ -36,13 +37,13 @@ public:
     void scan(int degrees); // Added parameter for degrees
 
 
+    float degreesToRads(int degrees); // Added parameter for degrees
 private:
     MotorParams& params_;
 
     // int steps_up = cm*65; // Added variable for steps_up
     // int turn = degrees*108; // terible variable naming
 
-    float degreesToRads(int degrees); // Added parameter for degrees
 };;
 
 #endif // MOTOR_CONTROLLER_HPP

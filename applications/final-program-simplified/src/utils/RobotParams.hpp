@@ -6,6 +6,7 @@
 #include <condition_variable>
 #include <boost/lockfree/queue.hpp>
 #include "json.hpp"
+#include <optional>
 
 using json = nlohmann::json;
 
@@ -43,6 +44,7 @@ struct MotorParams {
     std::atomic<bool>& motorEnabled;        // Flag indicating if the motor is enabled
     std::atomic<bool>& motorRunning;       // Flag indicating if the motor is running
     std::atomic<bool>& stopSignal;          // Flag indicating if the motor should stop
+    std::atomic<bool>& irSignal;            // Flag indicating if the motor should stop
     std::mutex& mtx;                        // Mutex for motor synchronization
     std::condition_variable& cv;            // Condition variable for motor synchronization
 };
@@ -51,6 +53,12 @@ struct MotorData {
     int speed = 10000;                      // Motor speed
     int angle;                              // Motor angle
     int distance;                           // Motor distance
+};
+
+struct Coordinate {
+    float x;
+    float y;
+    int theta;
 };
 
 struct SensorData {
@@ -67,6 +75,38 @@ struct SensorData {
             {"CS", colourData.toJson()["CS"] },
             {"IR", irData.toJson()["IR"] }
         };
+    }
+};
+
+struct MotorToComData {
+    // std::string type;                       // Type of data
+    std::array<char, 100> type;
+    Coordinate coordinate;
+
+    std::optional<SensorData> sensorData;
+
+    MotorToComData() : type{}, coordinate{}, sensorData{} {}
+
+    // Constructor that takes a std::string and a Coordinate
+    MotorToComData(const std::string& s, const Coordinate& c, const std::optional<SensorData>& sd = std::nullopt) : type{}, coordinate{c}, sensorData{sd} {
+        std::copy(s.begin(), s.end(), type.begin());
+    }
+
+    // Conversion to std::string
+    operator std::string() const {
+        return std::string(type.data());
+    }
+
+    json toJson() const {
+        json result{
+            {"Coords", {{"type", std::string(type.data())}, {"x", coordinate.x}, {"y", coordinate.y}, {"tag", "delete"}}}
+        };
+    
+        if (sensorData.has_value()) {
+            result["Sensors"] = sensorData.value().toJson();
+        }
+    
+        return result;
     }
 };
 
@@ -89,7 +129,7 @@ struct ThreadParams {
     // Add your shared variables here
     // TODO Maybe the comToMotorQueue and motorToComQueue should have different structs
     boost::lockfree::queue<MotorData> comToMotorQueue { QUEUE_CAPACITY };    // Lock-free queue for motor data
-    boost::lockfree::queue<MotorData> motorToComQueue { QUEUE_CAPACITY };    // Lock-free queue for motor data
+    boost::lockfree::queue<MotorToComData> motorToComQueue { QUEUE_CAPACITY };    // Lock-free queue for motor data
     boost::lockfree::queue<SensorData> sensorQueue { QUEUE_CAPACITY };    // Lock-free queue for sensor data
 };
 

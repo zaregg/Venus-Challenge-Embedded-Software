@@ -41,13 +41,13 @@ void MotorController::disable()
 void MotorController::turn(int degrees)
 {
     enable();
-    std::cout << "Turning " << degrees << " degrees" << std::endl;
-    std::cout << "Motor enabled: " << params_.motorEnabled.load(std::memory_order_acquire) << std::endl;
+    // std::cout << "Turning " << degrees << " degrees" << std::endl;
+    // std::cout << "Motor enabled: " << params_.motorEnabled.load(std::memory_order_acquire) << std::endl;
     if (params_.motorEnabled.load(std::memory_order_acquire)){
         stepper_set_speed(25000, 25000); //FIXME hardocded for now
         stepper_steps(degrees*STEPS_PER_DEGREE, -degrees*STEPS_PER_DEGREE);
         while (!stepper_steps_done());
-        sleep_msec(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));;
     }
     disable();
 
@@ -56,13 +56,13 @@ void MotorController::turn(int degrees)
 void MotorController::forward(int distance)
 {
     enable();
-    std::cout << "Moving forward " << distance << " cm" << std::endl;
-    std::cout << "Motor enabled: " << params_.motorEnabled.load(std::memory_order_acquire) << std::endl;
+    // std::cout << "Moving forward " << distance << " cm" << std::endl;
+    // std::cout << "Motor enabled: " << params_.motorEnabled.load(std::memory_order_acquire) << std::endl;
     if (params_.motorEnabled.load(std::memory_order_acquire)){
         stepper_set_speed(15000, 15000); //FIXME hardocded for now
         stepper_steps(distance*STEPS_PER_CM, distance*STEPS_PER_CM);
         while (!stepper_steps_done());
-        sleep_msec(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));;
     }
     disable();
 }
@@ -76,7 +76,7 @@ void MotorController::backward(int distance)
         stepper_set_speed(15000, 15000); //FIXME hardocded for now
         stepper_steps(-distance*STEPS_PER_CM, -distance*STEPS_PER_CM);
         while (!stepper_steps_done());
-        sleep_msec(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));;
     }
     disable();
 }
@@ -84,32 +84,32 @@ void MotorController::backward(int distance)
 void MotorController::scan(int degrees)
 {
     enable();
-    int i = 0;
+    // int i = 0;
     std::cout << "Scanning " << degrees << " degrees" << std::endl;
     std::cout << "Motor enabled: " << params_.motorEnabled.load(std::memory_order_acquire) << std::endl;
     if (params_.motorEnabled.load(std::memory_order_acquire)){
         std::cout << "Scanning " << -degrees << " degrees" << std::endl;
         stepper_set_speed(30000, 30000); //FIXME hardocded for now
-        if (i % 10)
-        {
-            stepper_steps(degrees*STEPS_PER_DEGREE, -degrees*STEPS_PER_DEGREE);
-            while (!stepper_steps_done());
-            sleep_msec(1);
-            std::cout << "Done turning 60 degrees" << std::endl;
-            stepper_steps( -2*degrees*STEPS_PER_DEGREE, 2*degrees*STEPS_PER_DEGREE);
-            while (!stepper_steps_done());
-            sleep_msec(1);
-            std::cout << "Done turning -180 degrees" << std::endl;
-            stepper_steps(degrees*STEPS_PER_DEGREE, -degrees*STEPS_PER_DEGREE);
-            while (!stepper_steps_done());
-            std::cout << "Done turning 60 degrees" << std::endl;
-            sleep_msec(1);
-            while (!stepper_steps_done());
-            sleep_msec(10);
-        }
+        // if (i % 10)
+        // {
+        //     stepper_steps(degrees*STEPS_PER_DEGREE, -degrees*STEPS_PER_DEGREE);
+        //     while (!stepper_steps_done());
+        //     std::this_thread::sleep_for(std::chrono::milliseconds(1));;
+        //     std::cout << "Done turning 60 degrees" << std::endl;
+        //     stepper_steps( -2*degrees*STEPS_PER_DEGREE, 2*degrees*STEPS_PER_DEGREE);
+        //     while (!stepper_steps_done());
+        //     std::this_thread::sleep_for(std::chrono::milliseconds(1));;
+        //     std::cout << "Done turning -180 degrees" << std::endl;
+        //     stepper_steps(degrees*STEPS_PER_DEGREE, -degrees*STEPS_PER_DEGREE);
+        //     while (!stepper_steps_done());
+        //     std::cout << "Done turning 60 degrees" << std::endl;
+        //     std::this_thread::sleep_for(std::chrono::milliseconds(1));;
+        //     while (!stepper_steps_done());
+        //     sleep_msec(10);
+        // }
         stepper_steps(STEPS_PER_CM,STEPS_PER_CM);
         while (!stepper_steps_done());
-        sleep_msec(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));;
     }
     disable();
 }

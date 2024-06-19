@@ -110,6 +110,19 @@ TOFData DistanceSensor::getDistance()
     uint16_t distanceA, distanceB;
     distanceA = tofReadDistance(&sensorA);
     distanceB = tofReadDistance(&sensorB);
+    auto start_time = std::chrono::steady_clock::now();
+    while (distanceA < 20 || distanceB < 20) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        distanceA = tofReadDistance(&sensorA);
+        distanceB = tofReadDistance(&sensorB);
+
+        auto current_time = std::chrono::steady_clock::now();
+        auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count();
+        if (elapsed_time >= 500) {
+        std::cerr << "Timeout occurred" << std::endl;
+        return tofData;
+        }
+    }
 
     tofData.distance1 = distanceA;
     tofData.distance2 = distanceB;

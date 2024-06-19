@@ -102,12 +102,30 @@ void SerialClient::communicationThread()
     SensorData data;
     if (params_.sensorQueue.pop(data))
     {
-      std::string json_str = data.toJson().dump();
+      // nlohmann::json data_json;
+
+      // Populate the JSON object with data
+      // data_json["type"] = "robot";
+      // data_json["x"] = rand() % 101 - 50;
+      // data_json["y"] = rand() % 101 - 50;
+      // data_json["tag"] = "delete";
+
+      // std::string json_str = data_json.dump();
       // std::cout << "Sending: " << json_str << std::endl;
-      // TODO but WORKING!!!!
       // uint32_t size = json_str.size();
       // uart_write_array(UART0, (uint8_t *) &size, 4);
       // uart_write_array(UART0, (uint8_t *) json_str.c_str(), (uint8_t) size);
+    }
+
+    MotorToComData receivedData;
+    if (params_.motorToComQueue.pop(receivedData))
+    {
+
+      std::string json_str = receivedData.toJson().dump();
+      std::cout << "Sending: " << json_str << std::endl;
+      uint32_t size = json_str.size();
+      uart_write_array(UART0, (uint8_t *) &size, 4);
+      uart_write_array(UART0, (uint8_t *) json_str.c_str(), (uint8_t) size);
     }
   }
 }

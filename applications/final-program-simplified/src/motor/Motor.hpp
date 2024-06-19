@@ -3,8 +3,10 @@
 
 #include <iostream>
 #include <thread>
+#include <cmath>
 #include "RobotParams.hpp"
 #include "MotorController.hpp"
+#include "json.hpp"
 
 class Motor {
 public:
@@ -26,8 +28,10 @@ public:
 private:
     void motorThread();
 
+
     ThreadParams& params_;
     MotorController motorController_;
+    Coordinate currentCoords_;
     std::thread motorThread_;
     // Add your member variables here
 };

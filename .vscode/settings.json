@@ -9,5 +9,20 @@
     "remote.extensionKind": {
         "GitHub.copilot": ["ui"],
         "GitHub.copilot-chat": ["ui"],
+        "GitHub.pull-request": ["ui"],
+        "ms-vscode.cpptools": ["ui"],
+        "ms-vscode.cpptools-extension-pack": ["ui"],
+        "twxs.cmake": ["ui"],
+        "ms-vscode.cmake-tools": ["ui"],
+        "ms-vscode.cpptools-themes": ["ui"],
     },
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/node_modules/**": true,
+        "**/build/**": true,
+        "**/doc/**": true,
+        "**/bin/**": true,
+        "**/application/**/build/**": true,
+    } 
+
 }

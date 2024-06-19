@@ -51,7 +51,7 @@ bool Sensor::areSensorsEnabled()
 void Sensor::sensorThread()
 {
     std::cout << "Sensor thread started." << std::endl;
-    int i = 0;
+    // int i = 0;
     while(params_.sensorParams.sensorRunning.load(std::memory_order_acquire)) {
         // Perform sensor operations here
         // std::cout << "Sensor thread running." << std::endl;
@@ -73,15 +73,19 @@ void Sensor::sensorThread()
         std::cout << "IR2: " << sensorData.irData.ir2 << std::endl;
 
         if (sensorData.irData.ir1 || sensorData.irData.ir2) {
-            params_.motorParams.stopSignal.store(true, std::memory_order_release);
+            // params_.motorParams.stopSignal.store(true, std::memory_order_release);
+            params_.motorParams.irSignal.store(true, std::memory_order_release);
             // sensorData.colourData = colourSensor_.requestCapture();
             // std::cout << "Colour: " << sensorData.colourData.colour << std::endl;
         }
 
-        if ((sensorData.distanceData.distance1 < 50 || sensorData.distanceData.distance2 < 50) && !params_.motorParams.stopSignal.load(std::memory_order_acquire)) {
+        if ((sensorData.distanceData.distance1 < 100 || sensorData.distanceData.distance2 < 100) && !params_.motorParams.stopSignal.load(std::memory_order_acquire)) {
             params_.motorParams.stopSignal.store(true, std::memory_order_release);
             sensorData.colourData = colourSensor_.requestCapture();
+            std::this_thread::sleep_for(std::chrono::milliseconds(5000));
             std::cout << "Colour: " << sensorData.colourData.colour << std::endl;
+            params_.motorParams.stopSignal.store(false, std::memory_order_release);
+            params_.motorParams.cv.notify_all();
         }
         // else {
         //     params_.motorParams.stopSignal.store(false, std::memory_order_release);
@@ -90,6 +94,6 @@ void Sensor::sensorThread()
 
         params_.sensorQueue.push(sensorData);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }

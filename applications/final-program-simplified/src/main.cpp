@@ -13,6 +13,7 @@ int main() {
     std::atomic<bool> motorEnabled   { false };      // Flag indicating if the motor is enabled
     std::atomic<bool> motorRunning  { false };      // Flag indicating if the motor is running
     std::atomic<bool> stopSignal    { false };      // Flag indicating if the motor should stop
+    std::atomic<bool> irSignal      { false };      // Flag indicating if the motor should stop
     std::mutex mtx;                                 // Mutex for motor synchronization
     std::condition_variable cv;                     // Condition variable for motor synchronization
 
@@ -22,7 +23,7 @@ int main() {
     // Communication parameters
     std::atomic<bool> comRunning    { false };      // Flag indicating if the communication is running
 
-    ThreadParams params {  MotorParams { motorEnabled, motorRunning, stopSignal, mtx, cv }, SensorParams { sensorRunning }, ComParams{comRunning} };
+    ThreadParams params {  MotorParams { motorEnabled, motorRunning, stopSignal, irSignal, mtx, cv }, SensorParams { sensorRunning }, ComParams{comRunning} };
 
     // Create sensor and motor objects with shared parameters
     Sensor sensor(params);
