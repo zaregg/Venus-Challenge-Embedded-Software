@@ -99,9 +99,9 @@ void SerialClient::communicationThread()
     }
 
     // Transmitting
-    SensorData data;
-    if (params_.sensorQueue.pop(data))
-    {
+    // SensorData data;
+    // if (params_.sensorQueue.pop(data))
+    // {
       // nlohmann::json data_json;
 
       // Populate the JSON object with data
@@ -115,7 +115,7 @@ void SerialClient::communicationThread()
       // uint32_t size = json_str.size();
       // uart_write_array(UART0, (uint8_t *) &size, 4);
       // uart_write_array(UART0, (uint8_t *) json_str.c_str(), (uint8_t) size);
-    }
+    // }
 
     MotorToComData receivedData;
     if (params_.motorToComQueue.pop(receivedData))

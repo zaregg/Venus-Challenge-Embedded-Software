@@ -75,15 +75,18 @@ void Sensor::sensorThread()
         if (sensorData.irData.ir1 || sensorData.irData.ir2) {
             // params_.motorParams.stopSignal.store(true, std::memory_order_release);
             params_.motorParams.irSignal.store(true, std::memory_order_release);
+            params_.sensorQueue.push(sensorData);
+            params_.motorParams.cv.notify_all();
             // sensorData.colourData = colourSensor_.requestCapture();
             // std::cout << "Colour: " << sensorData.colourData.colour << std::endl;
         }
 
-        if ((sensorData.distanceData.distance1 < 100 || sensorData.distanceData.distance2 < 100) && !params_.motorParams.stopSignal.load(std::memory_order_acquire)) {
+        if ((sensorData.distanceData.distance1 < 120 || sensorData.distanceData.distance2 < 120    ) && !params_.motorParams.stopSignal.load(std::memory_order_acquire)) {
             params_.motorParams.stopSignal.store(true, std::memory_order_release);
             sensorData.colourData = colourSensor_.requestCapture();
             std::this_thread::sleep_for(std::chrono::milliseconds(5000));
             std::cout << "Colour: " << sensorData.colourData.colour << std::endl;
+            params_.sensorQueue.push(sensorData);
             params_.motorParams.stopSignal.store(false, std::memory_order_release);
             params_.motorParams.cv.notify_all();
         }
@@ -92,7 +95,7 @@ void Sensor::sensorThread()
         //     params_.motorParams.cv.notify_one();
         // }
 
-        params_.sensorQueue.push(sensorData);
+        // params_.sensorQueue.push(sensorData);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
