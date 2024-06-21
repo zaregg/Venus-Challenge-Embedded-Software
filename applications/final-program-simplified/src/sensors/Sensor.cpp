@@ -67,10 +67,15 @@ void Sensor::sensorThread()
         SensorData sensorData;
         sensorData.distanceData = distanceSensor_.getDistance();
         sensorData.irData = irSensor_.getIRData();
-        std::cout << "DistanceA: " << sensorData.distanceData.distance1 << std::endl;
-        std::cout << "DistanceB: " << sensorData.distanceData.distance2 << std::endl;
-        std::cout << "IR1: " << sensorData.irData.ir1 << std::endl;
-        std::cout << "IR2: " << sensorData.irData.ir2 << std::endl;
+        // std::cout << "DistanceA: " << sensorData.distanceData.distance1 << std::endl;
+        // std::cout << "DistanceB: " << sensorData.distanceData.distance2 << std::endl;
+        // std::cout << "IR1: " << sensorData.irData.ir1 << std::endl;
+        // std::cout << "IR2: " << sensorData.irData.ir2 << std::endl;
+
+        params_.ds1.store(sensorData.distanceData.distance1, std::memory_order_release);
+        params_.ds2.store(sensorData.distanceData.distance2, std::memory_order_release);
+        params_.ir1.store(sensorData.irData.ir1, std::memory_order_release);
+        params_.ir2.store(sensorData.irData.ir2, std::memory_order_release);
 
         if (sensorData.irData.ir1 || sensorData.irData.ir2) {
             // params_.motorParams.stopSignal.store(true, std::memory_order_release);
@@ -81,7 +86,8 @@ void Sensor::sensorThread()
             // std::cout << "Colour: " << sensorData.colourData.colour << std::endl;
         }
 
-        if ((sensorData.distanceData.distance1 < 120 || sensorData.distanceData.distance2 < 120    ) && !params_.motorParams.stopSignal.load(std::memory_order_acquire)) {
+        // distance sensor 1 should be at the bottom
+        if ((sensorData.distanceData.distance1 < 150    ) && !params_.motorParams.stopSignal.load(std::memory_order_acquire)) {
             params_.motorParams.stopSignal.store(true, std::memory_order_release);
             sensorData.colourData = colourSensor_.requestCapture();
             std::this_thread::sleep_for(std::chrono::milliseconds(5000));

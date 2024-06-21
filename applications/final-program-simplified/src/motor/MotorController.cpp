@@ -45,11 +45,13 @@ void MotorController::turn(int degrees)
     // std::cout << "Motor enabled: " << params_.motorEnabled.load(std::memory_order_acquire) << std::endl;
     if (params_.motorEnabled.load(std::memory_order_acquire)){
         stepper_set_speed(25000, 25000); //FIXME hardocded for now
-        for (int i = 0; i < degrees; i++) {
-            stepper_steps(STEPS_PER_DEGREE, -STEPS_PER_DEGREE);
-            while (!stepper_steps_done());
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        }
+        // for (int i = 0; i < degrees; i++) {
+        //     stepper_steps(STEPS_PER_DEGREE, -STEPS_PER_DEGREE);
+        //     while (!stepper_steps_done());
+        //     std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        // }
+        stepper_steps(degrees*STEPS_PER_DEGREE, -degrees*STEPS_PER_DEGREE);
+        // while (!stepper_steps_done());
         // stepper_steps(degrees*STEPS_PER_DEGREE, -degrees*STEPS_PER_DEGREE);
         while (!stepper_steps_done());
         std::this_thread::sleep_for(std::chrono::milliseconds(1));;

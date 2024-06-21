@@ -19,11 +19,16 @@ int main() {
 
     // Sensor parameters
     std::atomic<bool> sensorRunning { false };      // Flag indicating if the sensor is running
+    // std::atomic<float> dis1 {0.0};
+    // std::atomic<float> dis2 {0.0};
+    // std::atomic<bool> ir1   { false };
+    // std::atomic<bool> ir2  { false };
 
     // Communication parameters
     std::atomic<bool> comRunning    { false };      // Flag indicating if the communication is running
 
-    ThreadParams params {  MotorParams { motorEnabled, motorRunning, stopSignal, irSignal, mtx, cv }, SensorParams { sensorRunning }, ComParams{comRunning} };
+
+    ThreadParams params {  MotorParams { motorEnabled, motorRunning, stopSignal, irSignal, mtx, cv }, SensorParams { sensorRunning }, ComParams{comRunning}};
 
     // Create sensor and motor objects with shared parameters
     Sensor sensor(params);

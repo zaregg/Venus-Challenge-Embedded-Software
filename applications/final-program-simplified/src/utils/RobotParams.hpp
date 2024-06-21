@@ -47,6 +47,8 @@ struct MotorParams {
     std::atomic<bool>& irSignal;            // Flag indicating if the motor should stop
     std::mutex& mtx;                        // Mutex for motor synchronization
     std::condition_variable& cv;            // Condition variable for motor synchronization
+
+
 };
 
 struct MotorData {
@@ -126,11 +128,17 @@ struct ThreadParams {
     SensorParams sensorParams;              // Sensor parameters
     ComParams comParams;                    // Communication parameters
     
+    std::atomic<float> ds1 {0.0};
+    std::atomic<float> ds2  {0.0};
+    std::atomic<bool> ir1 {false};
+    std::atomic<bool> ir2 {false};
     // Add your shared variables here
     // TODO Maybe the comToMotorQueue and motorToComQueue should have different structs
     boost::lockfree::queue<MotorData> comToMotorQueue { QUEUE_CAPACITY };    // Lock-free queue for motor data
     boost::lockfree::queue<MotorToComData> motorToComQueue { QUEUE_CAPACITY };    // Lock-free queue for motor data
     boost::lockfree::queue<SensorData> sensorQueue { QUEUE_CAPACITY };    // Lock-free queue for sensor data
+
+
 };
 
 #endif // ROBOTPARAMS_HPP
