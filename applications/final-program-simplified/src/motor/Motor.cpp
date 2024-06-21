@@ -118,7 +118,7 @@ void Motor::searchState() {
         // motorToComData.type = "robot";
         // motorToComData.coordinate = currentCoords_;
 
-        params_.motorToComQueue.push(MotorToComData("robot", currentCoords_));
+        params_.motorToComQueue.push(MotorToComData("Robot", currentCoords_));
         // moveForward(1.0); // Move forward for 1 second (example duration)
     }
 }
@@ -139,6 +139,18 @@ void Motor::detectionState() {
         // TODO It should wait for some information from the comunication thread when stopping
         // motorController_.turn(rand() % 231 + 40);
 
+
+        ir1_    = params_.ir1.load(std::memory_order_acquire);
+        ir2_    = params_.ir2.load(std::memory_order_acquire);
+        ds1_    = params_.ds1.load(std::memory_order_acquire);
+        ds2_    = params_.ds2.load(std::memory_order_acquire);
+        uint8_t cs_    = params_.colour.load(std::memory_order_acquire);
+
+        SensorData sensorData {TOFData{(uint16_t)ds1_, (uint16_t)ds2_}, ColourData{cs_}, IRData{ir1_, ir2_}};
+
+        params_.motorToComQueue.push(MotorToComData("Block", currentCoords_, sensorData));
+
+
         motorController_.forward(-1);
         float x = currentCoords_.x;
         float y = currentCoords_.y;
@@ -151,7 +163,7 @@ void Motor::detectionState() {
         currentCoords_.x = x_new;
         currentCoords_.y = y_new;
 
-        params_.motorToComQueue.push(MotorToComData("robot", currentCoords_));
+        params_.motorToComQueue.push(MotorToComData("Robot", currentCoords_));
         
 
         int direction = rand() % 2 == 0 ? 1 : -1;
@@ -180,6 +192,8 @@ void Motor::avoidState() {
     bool block_detected = false;
     bool recovery_successful = true; // Replace with actual recovery logic
     int randomDirection = (rand() % 2 == 0) ? 1 : -1;
+
+    params_.motorToComQueue.push(MotorToComData("Cliff", currentCoords_));
 
     while (moving_away) {
 
@@ -282,7 +296,7 @@ void Motor::stuckState() {
     currentCoords_.x = x_new;
     currentCoords_.y = y_new;
 
-    params_.motorToComQueue.push(MotorToComData("robot", currentCoords_));
+    params_.motorToComQueue.push(MotorToComData("Robot", currentCoords_));
 
     stuckCounter_++;
 }

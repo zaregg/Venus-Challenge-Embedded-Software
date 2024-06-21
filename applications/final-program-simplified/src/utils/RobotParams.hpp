@@ -132,6 +132,7 @@ struct ThreadParams {
     std::atomic<float> ds2  {0.0};
     std::atomic<bool> ir1 {false};
     std::atomic<bool> ir2 {false};
+    std::atomic<int> colour {0};
     // Add your shared variables here
     // TODO Maybe the comToMotorQueue and motorToComQueue should have different structs
     boost::lockfree::queue<MotorData> comToMotorQueue { QUEUE_CAPACITY };    // Lock-free queue for motor data

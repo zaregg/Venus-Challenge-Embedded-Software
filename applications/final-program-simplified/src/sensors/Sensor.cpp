@@ -92,6 +92,7 @@ void Sensor::sensorThread()
             sensorData.colourData = colourSensor_.requestCapture();
             std::this_thread::sleep_for(std::chrono::milliseconds(5000));
             std::cout << "Colour: " << sensorData.colourData.colour << std::endl;
+            params_.colour.store(sensorData.colourData.colour, std::memory_order_release);
             params_.sensorQueue.push(sensorData);
             params_.motorParams.stopSignal.store(false, std::memory_order_release);
             params_.motorParams.cv.notify_all();
